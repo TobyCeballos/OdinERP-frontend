@@ -52,7 +52,7 @@ const Home = () => {
               <tbody className=" text-neutral-600">
                 <tr>
                   <td className="px-4 py-2 border bg-white border-gray-400">
-                    Dólar Blue
+                    Dólar Oficial
                   </td>
                   <td className="px-4 py-2 border bg-white border-gray-400">
                     ${formatNumber(dollarData?.oficial?.value_buy)}
@@ -63,7 +63,7 @@ const Home = () => {
                 </tr>
                 <tr>
                   <td className="px-4 py-2 border bg-white border-gray-400">
-                    Dólar Oficial
+                    Dólar Blue
                   </td>
                   <td className="px-4 py-2 border bg-white border-gray-400">
                     ${formatNumber(dollarData?.blue?.value_buy)}

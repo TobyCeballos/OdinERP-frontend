@@ -11,52 +11,42 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
             to={"/POS/sell"}
             onClick={toggleShowPos}
             className={linkStyles}>
-            Vender
+            Vender✓
           </Link>
         </li>
         <li>
-          <a className={linkStyles} href="">
-            Facturar
-          </a>
-        </li>
-        <li>
-          <a className={linkStyles} href="">
-            Añadir clientes
-          </a>
-        </li>
-        <li>
-          <a className={linkStyles} href="">
-            Añadir proveedores
-          </a>
-        </li>
-        <li>
-          <a className={linkStyles} href="">
+          <Link
+            to={"/POS/add-inventory"}
+            onClick={toggleShowPos}
+            className={linkStyles}>
             Comprar
-          </a>
+          </Link>
         </li>
       </ul>
       <div className="w-px bg-violet-300 mx-3"></div>
       <ul className="flex flex-col w-1/2 pl-5 py-3">
         <h3 className="text-violet-800 font-bold text-lg">Ver listados</h3>
         <li>
-          <a className={linkStyles} href="">
-            Facturas
-          </a>
+          <Link to={"/POS/sales"} 
+            onClick={toggleShowPos} className={linkStyles} href="">
+            Ventas✓
+          </Link>
         </li>
         <li>
-          <a className={linkStyles} href="">
-            Ventas
-          </a>
+          <Link
+            to={"/POS/customers"}
+            onClick={toggleShowPos}
+            className={linkStyles}>
+            Clientes✓
+          </Link>
         </li>
         <li>
-          <a className={linkStyles} href="">
-            Clientes
-          </a>
-        </li>
-        <li>
-          <a className={linkStyles} href="">
-            Provedores
-          </a>
+          <Link
+            to={"/POS/providers"}
+            onClick={toggleShowPos}
+            className={linkStyles}>
+            Proveedores
+          </Link>
         </li>
         <li>
           <Link
@@ -64,7 +54,7 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
             onClick={toggleShowPos}
             className={linkStyles}
           >
-            Stock
+            Stock✓
           </Link>
         </li>
       </ul>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Loader from "./Loader";
 import { FaUserCircle } from "react-icons/fa";
@@ -20,7 +20,18 @@ const Navbar = () => {
       "x-access-token": `${token}`,
     },
   };
+  const searchRef = useRef(null);
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Verificar si el clic ocurrió fuera del cuadro de búsqueda
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowPos(false); // Ocultar el cuadro de búsqueda
+      }
+    };
+
+    // Agregar el manejador de eventos al documento
+    document.addEventListener("mousedown", handleClickOutside);
+
     const fetchUserData = async () => {
       try {
         setLoading(true);
@@ -36,8 +47,12 @@ const Navbar = () => {
         console.error("Error al obtener los datos del usuario:", error);
       }
     };
-
     fetchUserData();
+    // Limpiar el manejador de eventos al desmontar el componente
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+
   }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -54,7 +69,7 @@ const Navbar = () => {
   return (
     <>
       {userData?.username ? (
-        <div className="fixed w-full p-2">
+        <div className="fixed w-full z-50 p-2"  ref={searchRef}>
           <div className="bg-white flex flex-row justify-between items-center  px-6 rounded-lg shadow-md shadow-black text-center">
             <div className="flex">
               <span className="text-gray-600 text-2xl ">

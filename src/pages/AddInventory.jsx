@@ -3,7 +3,7 @@ import ProductTable from "../components/ProductTable";
 import { FaMinus, FaTrashAlt } from "react-icons/fa";
 import { API_ENDPOINT } from "../utils/config";
 import axios from "axios";
-const Sell = () => {
+const AddInventory = () => {
   const [cashRegister, setCashRegister] = useState("");
   const [customers, setCustomers] = useState([]);
   const [description, setDescription] = useState("");
@@ -226,7 +226,7 @@ const Sell = () => {
   return (
     <form className="pt-20 px-5 flex flex-col text-center">
       <div className="w-full mb-2 flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
-        <h2>Vender</h2>
+        <h2>Comprar</h2>
       </div>
       <div className="flex flex-wrap mb-1">
         <div className="p-1 w-1/12">
@@ -513,4 +513,4 @@ const Sell = () => {
   );
 };
 
-export default Sell;
+export default AddInventory;

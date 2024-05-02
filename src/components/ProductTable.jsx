@@ -7,9 +7,11 @@ import { FaSearch } from "react-icons/fa";
 import { SiMicrosoftexcel } from "react-icons/si";
 import AddEditFormModal from "./AddEditFormModal";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
-import { CiCirclePlus } from "react-icons/ci";
+import { FaPlus } from "react-icons/fa";
+
 
 import { API_ENDPOINT } from "../utils/config";
+import UploadExcel from "./UploadExcel";
 
 const tableHead = [
   "_id",
@@ -27,9 +29,9 @@ const tableHead = [
   "Cantidad",
   "Min. qty",
   "Max. qty",
-  "F. de carga",
-  "F. Modif",
   "Estado",
+  "F. Modif",
+  "F. de carga",
 ];
 function TableHead({ selectable, hiddenColumns }) {
   return (
@@ -48,7 +50,6 @@ function TableHead({ selectable, hiddenColumns }) {
     </thead>
   );
 }
-
 function TableBody({
   selectable,
   products,
@@ -56,6 +57,48 @@ function TableBody({
   handleRowClick,
   addToCart,
 }) {
+  const renderCellContent = (key, product) => {
+    switch (key) {
+      case "_id": return product._id;
+      case "product_id": return product.product_id;
+      case "product_name": return product.product_name;
+      case "product_provider": return product.product_provider
+      case "provider_product_id": return product.provider_product_id
+      case "description": return product.description
+      case "category": return product.category
+      case "brand": return product.brand
+      case "purchase_price": return product.purchase_price
+      case "current_price": return parseFloat(product.current_price).toFixed(2)
+      case "sale_price":
+        return parseFloat(
+          product.current_price * (1 + product.sale_price / 100)
+        ).toFixed(2);
+      case "unit_measurement": return product.unit_measurement
+      case "stock": return product.stock
+      case "min_stock": return product.min_stock
+      case "max_stock": return  product.max_stock
+      case "product_state": if(product.product_state === "active") {return <span className="bg-green-500 px-5 text-white rounded-full">Activo</span>} else {return <span className="bg-red-500 px-5 text-white rounded-full">Inactivo</span>}
+      case "updatedAt": return new Date(product.updatedAt).toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      case "createdAt": return new Date(product.createdAt).toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       {products.length > 0 ? (
@@ -74,11 +117,10 @@ function TableBody({
                     }}
                     className="text-violet-500 flex justify-center ml-1"
                   >
-                    <CiCirclePlus />
+                    <FaPlus />
                   </button>
                 </td>
               )}
-
               {Object.keys(product).map(
                 (key, colIndex) =>
                   !hiddenColumns.includes(colIndex) && (
@@ -87,7 +129,7 @@ function TableBody({
                       className="whitespace-nowrap p-1"
                       key={colIndex}
                     >
-                      {product[key]}
+                      {renderCellContent(key, product)}
                     </td>
                   )
               )}
@@ -110,6 +152,7 @@ function TableBody({
   );
 }
 
+
 const ProductTable = ({
   name,
   filter,
@@ -131,6 +174,7 @@ const ProductTable = ({
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [searchValue, setSearchValue] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
 
   const addToCart = (productId) => {
@@ -160,13 +204,13 @@ const ProductTable = ({
     // Redirigir al usuario a la página de detalles del producto
     navigate(`/POS/stock/details/${productId}`);
   };
-  const increment = () => {
-    setCount((prevCount) => prevCount + 1);
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1);
   };
 
-  const decrement = () => {
-    if (count > 0) {
-      setCount((prevCount) => prevCount - 1);
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -179,7 +223,7 @@ const ProductTable = ({
   };
 
   const fetchProducts = () => {
-    axios.get(`${API_ENDPOINT}api/products`, config).then((res) => {
+    axios.get(`${API_ENDPOINT}api/products?page=${currentPage}`, config).then((res) => {
       setProducts(res.data);
       console.log(res.data);
     });
@@ -187,7 +231,7 @@ const ProductTable = ({
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage]);
 
   const toggleColumnVisibility = (index) => {
     if (hiddenColumns.includes(index)) {
@@ -225,7 +269,7 @@ const ProductTable = ({
   };
 
   const showAllColumns = () => {
-    setHiddenColumns([]);
+    setHiddenColumns([0]);
   };
 
   const someColumnsVisible =
@@ -233,11 +277,11 @@ const ProductTable = ({
   return (
     <div className={height + "flex"}>
       {headerOptions == true && (
-        <div className="w-full flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
+        <div className="w-full -z-20 flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
           <h2>{name}</h2>
           <div className="flex">
             {search === true && (
-              <div className="flex z-20 items-center relative mr-3 w-80">
+              <div className="flex z-0 items-center relative mr-3 w-80">
                 <input
                   type="text"
                   placeholder="Buscar..."
@@ -263,9 +307,9 @@ const ProductTable = ({
         </div>
       )}
       <div
-        className={`w-full flex flex-col mt-3 rounded-xl overflow-y-hidden overflow-x-auto ${height} bg-neutral-800`}
+        className={`w-full flex flex-col mt-3 rounded-xl overflow-y-hidden overflow-x-auto bg-neutral-800`}
       >
-        <table className="bg-white max-w-full">
+        <table className="bg-white max-w-full text-left">
           <TableHead selectable={selectable} hiddenColumns={hiddenColumns} />
           <TableBody
             addToCart={addToCart}
@@ -299,15 +343,15 @@ const ProductTable = ({
             <div className="flex justify-center items-center">
               <button
                 type="button"
-                onClick={decrement}
+                onClick={prevPage}
                 className="p-1 hover:bg-slate-200 rounded-full m-1"
               >
                 <IoIosArrowBack />
               </button>
-              <span>{count}</span>
+              <span>{currentPage}</span>
               <button
                 type="button"
-                onClick={increment}
+                onClick={nextPage}
                 className="p-1 hover:bg-slate-200 rounded-full m-1"
               >
                 <IoIosArrowForward />
@@ -320,10 +364,7 @@ const ProductTable = ({
                 fetchProducts={fetchProducts}
                 icon={<MdOutlinePlaylistAdd />}
               />
-              <button
-                type="button" className="p-1 hover:bg-slate-200 rounded-full m-1">
-                <SiMicrosoftexcel />
-              </button>
+              <UploadExcel fetchProducts={fetchProducts} />
             </div>
           )}
         </div>

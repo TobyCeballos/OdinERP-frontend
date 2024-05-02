@@ -122,7 +122,7 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
             className="bg-white  rounded shadow-xl shadow-black"
           >
             <h2 className="text-xl border-l-violet-800 text-violet-900 py-2 my-3 border-l-4 font-semibold w-full px-10">
-              Añadir producto
+              {productToUpdate ? <span>Editar</span>: <span>Añadir</span>} producto
             </h2>
             <div className="grid grid-cols-6 px-7 gap-1">
               <div className="col-span-3">
@@ -191,7 +191,7 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
                   onChange={(e) => setBrand(e.target.value)}
                   required
                 />
-              </div>
+              </div>{!productToUpdate ? 
               <div className="col-span-2">
                 <input
                   type="number"
@@ -202,8 +202,8 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
                   onChange={(e) => setPurchasePrice(e.target.value)}
                   required
                 />
-              </div>
-              <div className="col-span-2">
+              </div> : null}
+              <div className={!productToUpdate ? "col-span-2" : "col-span-3" }>
                 <input
                   type="number"
                   className="w-full border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"
@@ -214,7 +214,7 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
                   required
                 />
               </div>
-              <div className="col-span-2">
+              <div className={!productToUpdate ? "col-span-2" : "col-span-3" }>
                 <input
                   type="number"
                   className="w-full border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"

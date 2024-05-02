@@ -42,16 +42,6 @@ const ProductDetail = () => {
   useEffect(() => {
     getProduct();
   }, []);
-
-  const deleteProduct = async () => {
-    try {
-      await axios.delete(`${API_ENDPOINT}api/products/${productId}`, config);
-      // Redireccionar a la página de inicio después de eliminar el producto
-      navigate("/POS/stock");
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-    }
-  };
   // Si el producto ha sido cargado, mostrar sus detalles
   return (
     <div className="px-5 pt-20">
@@ -80,12 +70,6 @@ const ProductDetail = () => {
               {product.product_state}
             </span>
             <div className="flex">
-              <button>
-                <FaTrashAlt
-                  onClick={deleteProduct}
-                  className="text-red-300 mr-4 hover:text-red-500"
-                />
-              </button>
               <AddEditFormModal
                 icon={<FaEdit />}
                 fetchProducts={getProduct}

@@ -6,7 +6,13 @@ import Home from "./pages/Home.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Stock from "./pages/Stock.jsx";
 import ProductDetail from "./components/ProductDetail.jsx";
+import SaleDetail from "./components/SaleDetail.jsx";
 import Sell from "./pages/Sell.jsx";
+import Sales from "./pages/Sales.jsx";
+import AddInventory from "./pages/AddInventory.jsx";
+import Customers from "./pages/Customers.jsx";
+import Providers from "./pages/Providers.jsx";
+import CustomerDetail from "./components/CustomerDetail.jsx";
 
 function App() {
   return (
@@ -19,14 +25,24 @@ function App() {
           path="/POS/stock"
           element={<ProtectedRoute component={Stock} />}
         />
-        <Route
-          path="/POS/sell"
-          element={<ProtectedRoute component={Sell} />}
-        />
+        <Route path="/POS/sell" element={<ProtectedRoute component={Sell} />} />
+        <Route path="/POS/sales" element={<ProtectedRoute component={Sales} />} />
+        
+        <Route path="/POS/customers" element={<ProtectedRoute component={Customers} />} />
+        <Route path="/POS/providers" element={<ProtectedRoute component={Providers} />} />
+        <Route path="/POS/add-inventory" element={<ProtectedRoute component={AddInventory} />} />
 
         <Route
           path="/POS/stock/details/:productId"
           element={<ProtectedRoute component={ProductDetail} />}
+        ></Route>
+        <Route
+          path="/POS/customers/details/:customerId"
+          element={<ProtectedRoute component={CustomerDetail} />}
+        ></Route>
+        <Route
+          path="/POS/sales/details/:saleId"
+          element={<ProtectedRoute component={SaleDetail} />}
         ></Route>
       </Routes>
     </Router>
