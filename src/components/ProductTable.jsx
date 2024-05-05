@@ -7,8 +7,8 @@ import { FaSearch } from "react-icons/fa";
 import { SiMicrosoftexcel } from "react-icons/si";
 import AddEditFormModal from "./AddEditFormModal";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
+import { IoWarningOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
-
 
 import { API_ENDPOINT } from "../utils/config";
 import UploadExcel from "./UploadExcel";
@@ -56,44 +56,78 @@ function TableBody({
   hiddenColumns,
   handleRowClick,
   addToCart,
+  showNotification
 }) {
   const renderCellContent = (key, product) => {
     switch (key) {
-      case "_id": return product._id;
-      case "product_id": return product.product_id;
-      case "product_name": return product.product_name;
-      case "product_provider": return product.product_provider
-      case "provider_product_id": return product.provider_product_id
-      case "description": return product.description
-      case "category": return product.category
-      case "brand": return product.brand
-      case "purchase_price": return product.purchase_price
-      case "current_price": return parseFloat(product.current_price).toFixed(2)
+      case "_id":
+        return product._id;
+      case "product_id":
+        return product.product_id;
+      case "product_name":
+        return product.product_name;
+      case "product_provider":
+        return product.product_provider;
+      case "provider_product_id":
+        return product.provider_product_id;
+      case "description":
+        return product.description;
+      case "category":
+        return product.category;
+      case "brand":
+        return product.brand;
+      case "purchase_price":
+        return product.purchase_price;
+      case "current_price":
+        return parseFloat(product.current_price).toFixed(2);
       case "sale_price":
         return parseFloat(
           product.current_price * (1 + product.sale_price / 100)
         ).toFixed(2);
-      case "unit_measurement": return product.unit_measurement
-      case "stock": return product.stock
-      case "min_stock": return product.min_stock
-      case "max_stock": return  product.max_stock
-      case "product_state": if(product.product_state === "active") {return <span className="bg-green-500 px-5 text-white rounded-full">Activo</span>} else {return <span className="bg-red-500 px-5 text-white rounded-full">Inactivo</span>}
-      case "updatedAt": return new Date(product.updatedAt).toLocaleDateString('es-AR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      case "createdAt": return new Date(product.createdAt).toLocaleDateString('es-AR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
+      case "unit_measurement":
+        return product.unit_measurement;
+      case "stock":
+        if (product.stock <= product.min_stock) {
+          return <span className="text-red-500">{product.stock}</span>;
+        } else {
+          return <span>{product.stock}</span>;
+        }
+      case "min_stock":
+        return product.min_stock;
+      case "max_stock":
+        return product.max_stock;
+      case "product_state":
+        if (product.product_state === "active") {
+          return (
+            <span className="bg-green-500 px-5 text-white rounded-full">
+              Activo
+            </span>
+          );
+        } else {
+          return (
+            <span className="bg-red-500 px-5 text-white rounded-full">
+              Inactivo
+            </span>
+          );
+        }
+      case "updatedAt":
+        return new Date(product.updatedAt).toLocaleDateString("es-AR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      case "createdAt":
+        return new Date(product.createdAt).toLocaleDateString("es-AR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
       default:
         return null;
     }
@@ -109,18 +143,33 @@ function TableBody({
               className="hover:bg-orange-100 font-semibold odd:bg-gray-100 text-neutral-700"
             >
               {selectable && (
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      addToCart(product._id);
-                    }}
-                    className="text-violet-500 flex justify-center ml-1"
-                  >
-                    <FaPlus />
-                  </button>
+                <td className="text-center">
+                  {product.stock >= 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addToCart(product._id);
+                      }}
+                      className="text-violet-500 flex justify-center ml-1"
+                    >
+                      <FaPlus />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addToCart(product._id);
+                        showNotification("Producto por debajo del stock minimo")
+                      }}
+                    >
+                      <span className="text-red-500 flex justify-center ml-1">
+                        <IoWarningOutline />
+                      </span>
+                    </button>
+                  )}
                 </td>
               )}
+
               {Object.keys(product).map(
                 (key, colIndex) =>
                   !hiddenColumns.includes(colIndex) && (
@@ -152,7 +201,6 @@ function TableBody({
   );
 }
 
-
 const ProductTable = ({
   name,
   filter,
@@ -166,7 +214,8 @@ const ProductTable = ({
   selectable,
   cart,
   setCart,
-  updateProductsCart
+  updateProductsCart,
+  showNotification
 }) => {
   const [hiddenColumns, setHiddenColumns] = useState([
     0, 3, 4, 6, 8, 9, 13, 14,
@@ -176,28 +225,26 @@ const ProductTable = ({
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-
   const addToCart = (productId) => {
-      
-      // Verificar si el producto ya está en el carrito
-      const existingProductIndex = cart.findIndex(item => item.objectId === productId);
-  
-      if (existingProductIndex !== -1) {
-          // Si el producto ya está en el carrito, incrementar la cantidad
-          const updatedCart = [...cart];
-          updatedCart[existingProductIndex].quantity++;
-          setCart(updatedCart);
-          updateProductsCart()
-      } else {
-          // Si el producto no está en el carrito, agregarlo con cantidad 1
-          setCart(prevCart => [
-              ...prevCart,
-              { objectId: productId, quantity: 1 }
-          ]);
-      }
+    // Verificar si el producto ya está en el carrito
+    const existingProductIndex = cart.findIndex(
+      (item) => item.objectId === productId
+    );
+
+    if (existingProductIndex !== -1) {
+      // Si el producto ya está en el carrito, incrementar la cantidad
+      const updatedCart = [...cart];
+      updatedCart[existingProductIndex].quantity++;
+      setCart(updatedCart);
+      updateProductsCart();
+    } else {
+      // Si el producto no está en el carrito, agregarlo con cantidad 1
+      setCart((prevCart) => [
+        ...prevCart,
+        { objectId: productId, quantity: 1 },
+      ]);
+    }
   };
-  
-  
 
   const navigate = useNavigate();
   const handleRowClick = (productId) => {
@@ -223,10 +270,12 @@ const ProductTable = ({
   };
 
   const fetchProducts = () => {
-    axios.get(`${API_ENDPOINT}api/products?page=${currentPage}`, config).then((res) => {
-      setProducts(res.data);
-      console.log(res.data);
-    });
+    axios
+      .get(`${API_ENDPOINT}api/products?page=${currentPage}`, config)
+      .then((res) => {
+        setProducts(res.data);
+        console.log(res.data);
+      });
   };
 
   useEffect(() => {
@@ -317,6 +366,7 @@ const ProductTable = ({
             products={products}
             hiddenColumns={hiddenColumns}
             handleRowClick={handleRowClick}
+            showNotification={showNotification}
           />
         </table>
         {someColumnsVisible && (

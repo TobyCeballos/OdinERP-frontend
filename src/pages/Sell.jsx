@@ -15,7 +15,7 @@ const Sell = () => {
   const [discount, setDiscount] = useState("");
   const [deposit, setDeposit] = useState("");
   const [userData, setUserData] = useState([]);
-  const [notification, setNotification] = useState(null); 
+  const [notification, setNotification] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [addCustomer, setAddCustomer] = useState(false);
@@ -37,7 +37,7 @@ const Sell = () => {
       prevCart.filter((item) => item.objectId !== productId)
     );
   };
-  const handleSell = async ({e, customerId}) => {
+  const handleSell = async ({ e, customerId }) => {
     e.preventDefault();
     const sellData = {
       cashRegister,
@@ -57,11 +57,25 @@ const Sell = () => {
       const response = await axios.post(`${API_ENDPOINT}api/sells`, sellData, {
         headers: headers,
       });
-      console.log("Venta creada:", response.data);
       showNotification("Venta creada exitosamente.");
-  
+
+        cart.forEach(async (item) => {
+          const updateStockData = {
+            stock: item.quantity, // Restar la cantidad del stock
+          };
+          console.log(item.quantity);
+          console.log(item.objectId);
+          // Enviar la solicitud POST para actualizar el stock y el precio de compra
+          const stockUpdateResponse = await axios.put(
+            `${API_ENDPOINT}api/products/${item.objectId}/on-sell`,
+            updateStockData,
+            { headers: headers }
+          ).then(response => {
+            showNotification("Hubo variaciones en el stock")
+          });
+        });
       if (payCondition === "current_account") {
-        console.log(customerId)
+        console.log(customerId);
         // Si la condición de pago es 'current_account', hacer la petición para añadir los productos al carrito de cuenta corriente del cliente
         const addToCurrentAccountData = {
           customerId: customerId, // Supongo que tienes el cliente seleccionado almacenado en alguna variable 'customer'
@@ -74,10 +88,13 @@ const Sell = () => {
             headers: headers,
           }
         );
-        console.log("Productos agregados al carrito de cuenta corriente:", addToCurrentAccountResponse.data);
+        console.log(
+          "Productos agregados al carrito de cuenta corriente:",
+          addToCurrentAccountResponse.data
+        );
         // Aquí puedes realizar cualquier acción adicional después de agregar los productos al carrito de cuenta corriente
       }
-  
+
       handleCancel();
       // Aquí puedes realizar cualquier acción adicional después de crear la venta
     } catch (error) {
@@ -85,7 +102,6 @@ const Sell = () => {
       // Aquí puedes manejar el error de acuerdo a tus necesidades
     }
   };
-  
 
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
@@ -202,27 +218,27 @@ const Sell = () => {
       return total + totalPriceForItem * item.quantity;
     }, 0)
     .toFixed(2); // Redondear el total a 2 decimales
-  
-    const createCustomer = async (customerName) => {
-      try {
-        const config = {
-          headers: {
-            "x-access-token": `${token}`,
-          },
-        };
-        const response = await axios.post(
-          `${API_ENDPOINT}api/customers/automaticCustomer/${customerName}`,
-          {},
-          config
-        );
-        console.log("Cliente creado:", response.data);
-        setShowSearch(false)
-        showNotification("Cliente creado exitosamente.");
-      } catch (error) {
-        console.error("Error al crear el cliente:", error);
-        showNotification("Error al crear el cliente. Inténtalo de nuevo.");
-      }
-    };
+
+  const createCustomer = async (customerName) => {
+    try {
+      const config = {
+        headers: {
+          "x-access-token": `${token}`,
+        },
+      };
+      const response = await axios.post(
+        `${API_ENDPOINT}api/customers/automaticCustomer/${customerName}`,
+        {},
+        config
+      );
+      console.log("Cliente creado:", response.data);
+      setShowSearch(false);
+      showNotification("Cliente creado exitosamente.");
+    } catch (error) {
+      console.error("Error al crear el cliente:", error);
+      showNotification("Error al crear el cliente. Inténtalo de nuevo.");
+    }
+  };
   return (
     <form className="pt-20 px-5 flex flex-col text-center">
       <div className="w-full mb-2 flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
@@ -239,7 +255,7 @@ const Sell = () => {
             onChange={(e) => setCashRegister(e.target.value)}
           />
         </div>
-        <div className="p-1 w-3/12"  ref={searchRef}>
+        <div className="p-1 w-3/12" ref={searchRef}>
           <input
             type="text"
             className="w-full capitalize border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"
@@ -253,11 +269,11 @@ const Sell = () => {
                 customers.map((customer, index) => (
                   <div
                     onClick={() => {
-                      console.log(customer)
+                      console.log(customer);
                       setSearchValue(customer.customer_name);
-                      setShippingAddress(customer.shipping_address)
-                      setVatCondition(customer.vat_condition)
-                      setCustomerId(customer._id)
+                      setShippingAddress(customer.shipping_address);
+                      setVatCondition(customer.vat_condition);
+                      setCustomerId(customer._id);
                     }}
                     className="text-left py-1 px-5 hover:bg-slate-100 capitalize rounded-md"
                     key={index}
@@ -342,6 +358,7 @@ const Sell = () => {
             <option value="cash">Efectivo</option>
             <option value="current_account">Cuenta corriente</option>
             <option value="card">Tarjeta</option>
+            <option value="check">Cheque</option>
           </select>
         </div>
         <div className="p-1 w-3/12">
@@ -376,6 +393,7 @@ const Sell = () => {
               headerOptions={true}
               footerOptions={true}
               selectable={true}
+              showNotification={showNotification}
               height={"h-full"}
               cart={cart}
               setCart={setCart}
@@ -487,7 +505,7 @@ const Sell = () => {
 
           <div className="p-1 w-full flex">
             <button
-              onClick={(e) => handleSell({e, customerId})}
+              onClick={(e) => handleSell({ e, customerId })}
               className="bg-violet-500 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-full w-full"
             >
               Finalizar

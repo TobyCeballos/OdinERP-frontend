@@ -13,6 +13,7 @@ import AddInventory from "./pages/AddInventory.jsx";
 import Customers from "./pages/Customers.jsx";
 import Providers from "./pages/Providers.jsx";
 import CustomerDetail from "./components/CustomerDetail.jsx";
+import ProviderDetail from "./components/ProviderDetail.jsx";
 
 function App() {
   return (
@@ -39,6 +40,10 @@ function App() {
         <Route
           path="/POS/customers/details/:customerId"
           element={<ProtectedRoute component={CustomerDetail} />}
+        ></Route>
+        <Route
+          path="/POS/provider/details/:providerId"
+          element={<ProtectedRoute component={ProviderDetail} />}
         ></Route>
         <Route
           path="/POS/sales/details/:saleId"

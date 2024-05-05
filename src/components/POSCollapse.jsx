@@ -11,7 +11,7 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
             to={"/POS/sell"}
             onClick={toggleShowPos}
             className={linkStyles}>
-            Vender✓
+            Vender
           </Link>
         </li>
         <li>
@@ -29,7 +29,7 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
         <li>
           <Link to={"/POS/sales"} 
             onClick={toggleShowPos} className={linkStyles} href="">
-            Ventas✓
+            Ventas
           </Link>
         </li>
         <li>
@@ -37,7 +37,7 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
             to={"/POS/customers"}
             onClick={toggleShowPos}
             className={linkStyles}>
-            Clientes✓
+            Clientes
           </Link>
         </li>
         <li>
@@ -54,7 +54,7 @@ const POSCollapse = ({ linkStyles, toggleShowPos }) => {
             onClick={toggleShowPos}
             className={linkStyles}
           >
-            Stock✓
+            Stock
           </Link>
         </li>
       </ul>

@@ -14,7 +14,31 @@ const Navbar = () => {
   const userId = localStorage.getItem("userId"); // Aquí debes proporcionar el userId deseado
 
   const token = localStorage.getItem("token");
+  const [time, setTime] = useState(new Date());
 
+  useEffect(() => {
+    // Función para actualizar el estado de la hora cada segundo
+    const updateTime = () => {
+      setTime(new Date());
+    };
+
+    // Establecer un intervalo para llamar a updateTime cada segundo
+    const interval = setInterval(updateTime, 1000);
+
+    // Limpiar el intervalo al desmontar el componente
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentTime =  time.getHours();
+  let greeting;
+
+  if (currentTime < 12 && currentTime > 5) {
+    greeting = "¡Buenos días";
+  } else if (currentTime > 12 && currentTime < 19) {
+    greeting = "¡Buenas tardes";
+  } else {
+    greeting = "¡Buenas noches";
+  }
   const config = {
     headers: {
       "x-access-token": `${token}`,
@@ -73,7 +97,7 @@ const Navbar = () => {
           <div className="bg-white flex flex-row justify-between items-center  px-6 rounded-lg shadow-md shadow-black text-center">
             <div className="flex">
               <span className="text-gray-600 text-2xl ">
-                ¡Bienvenido/a,{" "}
+                {greeting},{" "}
                 <span className="text-violet-400">{userData?.username}</span>!
               </span>
             </div>
