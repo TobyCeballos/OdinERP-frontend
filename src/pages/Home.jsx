@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import Calendar from "../components/Calendar";
-import Chat from "../components/Chat";
 import Clock from "../components/Clock";
 
 const Home = () => {
@@ -82,7 +81,7 @@ const Home = () => {
               </div>
             </div>
             <div className="relative w-1/2">
-              <Clock/>
+            <Clock/>
             </div>
           </div>
         </div>

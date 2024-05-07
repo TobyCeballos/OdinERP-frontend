@@ -80,7 +80,7 @@ const Navbar = () => {
   }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/signin";
+    window.location.href = "/";
   };
 
   const toggleShowPos = () => {
@@ -111,9 +111,9 @@ const Navbar = () => {
                 >
                   POS
                 </li>
-                <li className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out">
+                <Link to={"/CRM"} className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out">
                   CRM
-                </li>
+                </Link>
               </ul>
             </span>
             <div className="flex">
@@ -123,9 +123,9 @@ const Navbar = () => {
                 className="border-2 transition-all duration-300 ease-in-out hover:shadow-md text-violet-800 font-semibold text-xl border-violet-800 rounded-xl py-2 px-3 hover:bg-violet-500 hover:text-white"
                 value="Salir"
               />
-              <button className="flex flex-col text-violet-600 justify-center ml-3 item-center">
+              <Link to={`/profile/${userData._id}`} className="flex flex-col text-violet-600 justify-center ml-3 item-center">
                 <FaUserCircle className="text-3xl" />
-              </button>
+              </Link>
             </div>
           </div>
           {showPos ? <POSCollapse linkStyles={linkStyles} toggleShowPos={toggleShowPos} /> : null}

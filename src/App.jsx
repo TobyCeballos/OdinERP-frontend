@@ -14,6 +14,8 @@ import Customers from "./pages/Customers.jsx";
 import Providers from "./pages/Providers.jsx";
 import CustomerDetail from "./components/CustomerDetail.jsx";
 import ProviderDetail from "./components/ProviderDetail.jsx";
+import CRM from "./pages/CRM.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function App() {
   return (
@@ -48,7 +50,15 @@ function App() {
         <Route
           path="/POS/sales/details/:saleId"
           element={<ProtectedRoute component={SaleDetail} />}
-        ></Route>
+          ></Route>
+          <Route
+            path="/profile/:userId"
+            element={<ProtectedRoute component={ProfilePage} />}
+            ></Route>
+          <Route
+            path="/CRM"
+            element={<ProtectedRoute component={CRM} />}
+          />
       </Routes>
     </Router>
   );
