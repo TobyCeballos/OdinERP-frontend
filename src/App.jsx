@@ -16,6 +16,7 @@ import CustomerDetail from "./components/CustomerDetail.jsx";
 import ProviderDetail from "./components/ProviderDetail.jsx";
 import CRM from "./pages/CRM.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/signin" element={<Login />} />
+        <Route path="/*" element={<NotFound />} />
         <Route exact path="/" element={<ProtectedRoute component={Home} />} />
         <Route
           path="/POS/stock"

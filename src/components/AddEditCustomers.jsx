@@ -40,6 +40,7 @@ const AddEditCustomer = ({
   }, [customerToUpdate]);
 
   const token = localStorage.getItem("token");
+  const company = localStorage.getItem("company");
 
   const resetStates = () => {
     setCustomerName("");
@@ -81,7 +82,7 @@ const AddEditCustomer = ({
       if (customerToUpdate) {
         console.log(customerId);
         await axios
-          .put(`${API_ENDPOINT}api/customers/${customerId}`, data, {
+          .put(`${API_ENDPOINT}api/customers/${company}/${customerId}`, data, {
             headers: headers,
           })
           .then(() => {
@@ -90,7 +91,7 @@ const AddEditCustomer = ({
           });
       } else {
         await axios
-          .post(`${API_ENDPOINT}api/customers`, data, { headers: headers })
+          .post(`${API_ENDPOINT}api/customers/${company}/`, data, { headers: headers })
           .then(() => {
             fetchCustomers();
             resetStates();
@@ -146,7 +147,7 @@ const AddEditCustomer = ({
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-3">
@@ -156,7 +157,7 @@ const AddEditCustomer = ({
                   placeholder="Teléfono"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-3">
@@ -166,7 +167,7 @@ const AddEditCustomer = ({
                   placeholder="Código postal"
                   value={zipCode}
                   onChange={(e) => setZipCode(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-6">
@@ -176,7 +177,7 @@ const AddEditCustomer = ({
                   placeholder="Dirección de envío"
                   value={shippingAddress}
                   onChange={(e) => setShippingAddress(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-3">
@@ -186,7 +187,7 @@ const AddEditCustomer = ({
                   placeholder="Cuit/Cuil"
                   value={cuitCuil}
                   onChange={(e) => setCuitCuil(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-3">
@@ -213,7 +214,7 @@ const AddEditCustomer = ({
                   placeholder="Límite de crédito"
                   value={creditLimit}
                   onChange={(e) => setCreditLimit(e.target.value)}
-                  required
+                  
                 />
               </div>
               <div className="col-span-3">

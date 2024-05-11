@@ -19,6 +19,7 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
   const [maxQty, setMaxQty] = useState("");
   const [status, setStatus] = useState("active");
   const [showModal, setShowModal] = useState(false);
+  const company = localStorage.getItem("company");
   useEffect(() => {
     if (productToUpdate) {
       setProductName(productToUpdate.product_name);
@@ -82,14 +83,14 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
       console.log(data.product_name + ": " + token);
       if (productToUpdate) {
         await axios
-          .put(`${API_ENDPOINT}api/products/${productId}`, data, { headers: headers })
+          .put(`${API_ENDPOINT}api/products/${company}/${productId}`, data, { headers: headers })
           .then(() => {
             fetchProducts();
             resetStates();
           });
       } else {
         await axios
-          .post(`${API_ENDPOINT}api/products`, data, { headers: headers })
+          .post(`${API_ENDPOINT}api/products/${company}`, data, { headers: headers })
           .then(() => {
             fetchProducts();
             resetStates();

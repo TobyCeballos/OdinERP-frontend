@@ -78,11 +78,6 @@ const Navbar = () => {
     };
 
   }, []);
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-  };
-
   const toggleShowPos = () => {
     setShowPos(!showPos);
   };
@@ -117,12 +112,6 @@ const Navbar = () => {
               </ul>
             </span>
             <div className="flex">
-              <input
-                type="button"
-                onClick={handleLogout}
-                className="border-2 transition-all duration-300 ease-in-out hover:shadow-md text-violet-800 font-semibold text-xl border-violet-800 rounded-xl py-2 px-3 hover:bg-violet-500 hover:text-white"
-                value="Salir"
-              />
               <Link to={`/profile/${userData._id}`} className="flex flex-col text-violet-600 justify-center ml-3 item-center">
                 <FaUserCircle className="text-3xl" />
               </Link>

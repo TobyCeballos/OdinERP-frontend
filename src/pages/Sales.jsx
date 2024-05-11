@@ -22,7 +22,7 @@ const Sales = () => {
 
       setIsLoading(true); // Activar el indicador de carga
       await axios.put(
-        `${API_ENDPOINT}api/sells/payoff/${sellId}`,
+        `${API_ENDPOINT}api/sells/${company}/payoff/${sellId}`,
         {},
         { headers }
       );
@@ -36,6 +36,7 @@ const Sales = () => {
   };
 
   const token = localStorage.getItem("token");
+  const company = localStorage.getItem("company");
   const headers = {
     "x-access-token": token,
   };
@@ -44,7 +45,7 @@ const Sales = () => {
     setIsLoading(true); // Activar el indicador de carga
     try {
       const response = await axios.get(
-        `${API_ENDPOINT}api/sells?page=${currentPage}`,
+        `${API_ENDPOINT}api/sells/${company}?page=${currentPage}`,
         {
           headers,
         }
@@ -75,7 +76,7 @@ const Sales = () => {
       // Si el input está vacío, obtener todas las ventas
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/sells?page=${currentPage}`,
+          `${API_ENDPOINT}api/sells/${company}?page=${currentPage}`,
           {
             headers,
           }
@@ -90,7 +91,7 @@ const Sales = () => {
       // Si hay un término de búsqueda, realizar la búsqueda
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/sells/search/${value}?page=${currentPage}`,
+          `${API_ENDPOINT}api/sells/${company}/search/${value}?page=${currentPage}`,
           { headers }
         );
         setSales(response.data);

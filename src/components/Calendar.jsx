@@ -76,11 +76,11 @@ const events = [
 
 export default function Calendar() {
   return (
-  <div className='w-full p-2 bg-white rounded-md '>
+  <div className='w-full p-3 mt-2 bg-white rounded-md '>
   <FullCalendar
   plugins={[ dayGridPlugin, interactionPlugin ]}
   initialView="dayGridMonth"
-  height={400}
+  height={700}
   weekends={true}
   firstDay={1} selectable
   eventBackgroundColor='#8b5cf6'

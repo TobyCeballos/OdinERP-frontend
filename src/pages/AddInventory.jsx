@@ -39,7 +39,7 @@ const AddInventory = () => {
     } else {
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/products/search/${value}`,
+          `${API_ENDPOINT}api/products/${company}/search/${value}`,
           { headers }
         );
         if (response.data.length <= 0) {
@@ -105,7 +105,7 @@ const AddInventory = () => {
     } else {
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/products/search/${value}`,
+          `${API_ENDPOINT}api/products/${company}/search/${value}`,
           { headers }
         );
         if (response.data.length <= 0) {
@@ -169,7 +169,7 @@ const AddInventory = () => {
         console.log(item.purchasePrice);
         // Enviar la solicitud POST para actualizar el stock y el precio de compra
         const stockUpdateResponse = await axios.put(
-          `${API_ENDPOINT}api/products/${item.objectId}/on-buy`,
+          `${API_ENDPOINT}api/products/${company}/${item.objectId}/on-buy`,
           updateStockData,
           { headers: headers }
         );
@@ -177,7 +177,7 @@ const AddInventory = () => {
       });
       
       const response = await axios.post(
-        `${API_ENDPOINT}api/purchase`,
+        `${API_ENDPOINT}api/purchase/${company}/`,
         buyData,
         { headers: headers }
       );
@@ -194,6 +194,7 @@ const AddInventory = () => {
   };
   
 
+  const company = localStorage.getItem("company");
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const headers = {
@@ -243,7 +244,7 @@ const AddInventory = () => {
         cart.map(async (item) => {
           // Realizar consulta por cada productId en el carrito
           const response = await axios.get(
-            `${API_ENDPOINT}api/products/${item.objectId}`,
+            `${API_ENDPOINT}api/products/${company}/${item.objectId}`,
             {
               headers: headers,
             }
@@ -271,7 +272,7 @@ const AddInventory = () => {
     } else {
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/providers/search/${value}`,
+          `${API_ENDPOINT}api/providers/${company}/search/${value}`,
           { headers }
         );
         if (response.data.length <= 0) {
@@ -320,7 +321,7 @@ const AddInventory = () => {
         },
       };
       const response = await axios.post(
-        `${API_ENDPOINT}api/providers/automaticProvider/${providerName}`,
+        `${API_ENDPOINT}api/providers/${company}/automaticProvider/${providerName}`,
         {},
         config
       );

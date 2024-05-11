@@ -15,6 +15,7 @@ const SaleDetail = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  const company = localStorage.getItem("company");
   const config = {
     headers: {
       "x-access-token": `${token}`,
@@ -25,7 +26,7 @@ const SaleDetail = () => {
   const getSale = async () => {
     try {
       const response = await axios.get(
-        `${API_ENDPOINT}api/sells/${saleId}`,
+        `${API_ENDPOINT}api/sells/${company}/${saleId}`,
         config
       );
       setSale(response.data);
@@ -33,7 +34,7 @@ const SaleDetail = () => {
       const productsDetails = await Promise.all(
         response.data.cart.map(async (item) => {
           const productResponse = await axios.get(
-            `${API_ENDPOINT}api/products/${item.objectId}`,
+            `${API_ENDPOINT}api/products/${company}/${item.objectId}`,
             config
           );
           return { ...productResponse.data, quantity: item.quantity };
@@ -49,7 +50,7 @@ const SaleDetail = () => {
 
   const deleteSale = async (sale_id) => {
      try {
-      await axios.delete(`${API_ENDPOINT}api/sells/${saleId}`, config);
+      await axios.delete(`${API_ENDPOINT}api/sells/${company}/${saleId}`, config);
       setIsLoading(false); // Desactivar el indicador de carga después de completar la operación
       navigate("/POS/stock");
     } catch (error) {

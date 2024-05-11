@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import Calendar from "../components/Calendar";
 import Clock from "../components/Clock";
+import NewsCard from "../components/NewsCard";
+import { API_ENDPOINT } from "../utils/config.js";
 
 const Home = () => {
+  const [news, setNews] = useState([]);
   const [dollarData, setDollarData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getDollarData = async () => {
-    setLoading(true);
     try {
       await axios.get("https://api.bluelytics.com.ar/v2/latest").then((res) => {
         console.log(res.data);
@@ -20,8 +22,27 @@ const Home = () => {
       console.log(error);
     }
   };
+  const token = localStorage.getItem("token");
+  
+  const config = {
+    headers: {
+      "x-access-token": `${token}`,
+    },
+  };
+  const getNews = async () => {
+    try {
+      await axios.get(`${API_ENDPOINT}api/news`, config).then((res) => {
+        console.log(res.data);
+        setNews(res.data);
+        setLoading(false);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
+    getNews();
     getDollarData();
   }, []);
   const formatNumber = (number) => {
@@ -38,16 +59,14 @@ const Home = () => {
             <h2>Inicio</h2>
           </div>
           <div className="flex flex-row w-full">
-            <div className="w-1/2">
-              <div className="flex  rounded-lg overflow-hidden">
+            <div className="w-1/2 p-3">
+              <div className="flex rounded-lg overflow-hidden">
                 <table className="w-full rounded-lg">
                   <thead className=" text-neutral-100">
                     <tr>
-                      <th className="px-4 py-2  bg-violet-700">
-                        Tipo de Dólar
-                      </th>
-                      <th className="px-4 py-2  bg-violet-700">Compra</th>
-                      <th className="px-4 py-2  bg-violet-700">Venta</th>
+                      <th className="px-4 py-2  bg-slate-700">Tipo de Dólar</th>
+                      <th className="px-4 py-2  bg-slate-700">Compra</th>
+                      <th className="px-4 py-2  bg-slate-700">Venta</th>
                     </tr>
                   </thead>
                   <tbody className=" text-neutral-600">
@@ -76,12 +95,24 @@ const Home = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="">
-                <Calendar />
+              <div className="mt-3 text-xl">
+                <h2 className="text-white pl-2">Avisos de Actualizaciones</h2>
+
+                {news.map((item, index) => (
+                  <NewsCard
+                    key={index} // Asegúrate de proporcionar una key única para cada elemento de la lista
+                    title={item.title}
+                    content={item.content}
+                    date={item.date}
+                  />
+                ))}
               </div>
             </div>
             <div className="relative w-1/2">
-            <Clock/>
+              <div className="p-1">
+                <Calendar />
+              </div>
+              <Clock />
             </div>
           </div>
         </div>

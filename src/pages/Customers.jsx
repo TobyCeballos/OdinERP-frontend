@@ -14,6 +14,7 @@ const Customers = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Estado para controlar la carga
 
+  const company = localStorage.getItem("company");
   const nextPage = () => {
     setCurrentPage(currentPage + 1);
   };
@@ -30,7 +31,7 @@ const Customers = () => {
     if (value.trim() === "") {
       // Si el input está vacío, obtener todos los productos
       try {
-        const response = await axios.get(`${API_ENDPOINT}api/customers?page=${currentPage}`, {
+        const response = await axios.get(`${API_ENDPOINT}api/customers/${company}?page=${currentPage}`, {
           headers,
         });
         setCustomers(response.data);
@@ -43,7 +44,7 @@ const Customers = () => {
       // Si hay un término de búsqueda, realizar la búsqueda
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/customers/search/${value}?page=${currentPage}`,
+          `${API_ENDPOINT}api/customers/${company}/search/${value}?page=${currentPage}`,
           {headers: headers}
         );
         setCustomers(response.data);
@@ -63,7 +64,7 @@ const Customers = () => {
   const fetchCustomers = async () => {
     setIsLoading(true); // Activar el indicador de carga
     try {
-      const response = await axios.get(`${API_ENDPOINT}api/customers?page=${currentPage}`, {
+      const response = await axios.get(`${API_ENDPOINT}api/customers/${company}?page=${currentPage}`, {
         headers,
       });
       setCustomers(response.data);

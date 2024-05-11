@@ -15,6 +15,7 @@ const Providers = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(true); // Estado para controlar la carga
 
+  const company = localStorage.getItem("company");
   const token = localStorage.getItem("token");
   const headers = {
     "x-access-token": token,
@@ -23,7 +24,7 @@ const Providers = () => {
   const fetchProviders = async () => {
     try {
       const response = await axios.get(
-        `${API_ENDPOINT}api/providers?page=${currentPage}`,
+        `${API_ENDPOINT}api/providers/${company}?page=${currentPage}`,
         { headers }
       );
       setProviders(response.data);
@@ -52,7 +53,7 @@ const Providers = () => {
       // Si el input está vacío, obtener todos los proveedores
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/providers?page=${currentPage}`,
+          `${API_ENDPOINT}api/providers/${company}?page=${currentPage}`,
           { headers }
         );
         setProviders(response.data);
@@ -65,7 +66,7 @@ const Providers = () => {
       // Si hay un término de búsqueda, realizar la búsqueda
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/providers/search/${value}?page=${currentPage}`,
+          `${API_ENDPOINT}api/providers/${company}/search/${value}?page=${currentPage}`,
           { headers }
         );
         setProviders(response.data);

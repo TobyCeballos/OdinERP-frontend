@@ -30,7 +30,7 @@ const EditSale = ({ icon, saleToUpdate }) => {
           onSubmit={handleSubmit}
         >
           <h2 className="text-xl border-l-violet-800 text-violet-900 py-2 my-3 border-l-4 font-semibold w-full px-10">
-            Edita venta
+            Editar venta
           </h2>
           <div className="flex flex-wrap w-full text-white px-4 py-4">
             <div className="w-1/6 p-1">

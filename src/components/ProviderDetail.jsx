@@ -14,6 +14,7 @@ const ProviderDetail = () => {
   const { providerId } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const company = localStorage.getItem("company");
 
   const config = {
     headers: {
@@ -24,7 +25,7 @@ const ProviderDetail = () => {
   const getProvider = async () => {
     try {
       const response = await axios.get(
-        `${API_ENDPOINT}api/providers/${providerId}`,
+        `${API_ENDPOINT}api/providers/${company}/${providerId}`,
         config
       );
       setProvider(response.data);
@@ -37,7 +38,7 @@ const ProviderDetail = () => {
 
   const deleteProvider = async () => {
     try {
-      await axios.delete(`${API_ENDPOINT}api/providers/${providerId}`, config);
+      await axios.delete(`${API_ENDPOINT}api/providers/${company}/${company}/${providerId}`, config);
       setIsLoading(false); // Desactivar el indicador de carga después de completar la operación
       navigate("/POS/customers");
     } catch (error) {
@@ -52,7 +53,6 @@ const ProviderDetail = () => {
 
   return (
     <div className="pt-20 px-5">
-      {/* Renderizar el componente Loader mientras se está cargando */}
       {isLoading ? (
         <Loader />
       ) : (
@@ -62,7 +62,7 @@ const ProviderDetail = () => {
               <button onClick={() => navigate("/POS/providers")}>
                 <IoArrowBackCircleOutline className="text-violet-500" />
               </button>
-              <h2 className=" ml-2">
+              <h2 className="ml-2">
                 Detalle del proveedor - #{provider?.provider_id}
               </h2>
             </div>
@@ -94,47 +94,69 @@ const ProviderDetail = () => {
               </div>
             </div>
           </div>
-          <div className="p-1 w-full flex flex-wrap overflow-auto">
-            <div className="w-1/3 p-1">
-              <h3 className="text-lg font-semibold mb-1">Detalles del proveedor:</h3>
-              <table className="w-full rounded-md overflow-hidden capitalize">
-                <tbody>
-                  <TableRow title="Nombre" value={provider?.provider_name} />
-                  <TableRow title="Email" value={provider?.email} />
-                  <TableRow title="Teléfono" value={provider?.phone} />
-                  <TableRow title="Código postal" value={provider?.zip_code} />
-                  <TableRow
-                    title="Dirección"
-                    value={provider?.address}
-                  />
-                  <TableRow title="CUIT/CUIL" value={provider?.cuit_cuil} />
-                  <TableRow
-                    title="Condición de IVA"
-                    value={
-                      provider?.vat_condition === "final_consumer"
-                        ? "Consumidor final"
-                        : provider?.vat_condition === "exempt"
-                        ? "Excento"
-                        : provider?.vat_condition === "monotribute"
-                        ? "Monotributo"
-                        : "Registered"
-                    }
-                  />
-                  <TableRow
-                    title="Mi límite de crédito"
-                    value={provider?.credit_limit}
-                  />
-                  <TableRow
-                    title="Fecha de admisión"
-                    value={provider?.admission_date}
-                  />
-                  <TableRow title="Notas" value={provider?.notes} />
-                  <TableRow title="Estado" value={
-                      provider?.provider_state === "active"
-                        ? "Activo"
-                        : "inactivo"} />
-                </tbody>
-              </table>
+          <div className="p-1 w-full">
+            {/* Información general del proveedor */}
+            <div className="my-3 bg-white p-5 rounded-xl">
+              <h3 className="w-full flex justify-between  text-neutral-700 items-center text-xl border-b border-b-violet-500 pl-2 pb-2">
+                Información general del proveedor:
+              </h3>
+              <p>
+                <span className="font-semibold">Nombre:</span>{" "}
+                {provider?.provider_name}
+              </p>
+              <p>
+                <span className="font-semibold">Email:</span> {provider?.email}
+              </p>
+              <p>
+                <span className="font-semibold">Teléfono:</span>{" "}
+                {provider?.phone}
+              </p>
+              <p>
+                <span className="font-semibold">Dirección:</span>{" "}
+                {provider?.address}, {provider?.zip_code}
+              </p>
+            </div>
+            {/* Detalles fiscales */}
+            <div className="mb-3 bg-white p-5 rounded-xl">
+              <h3 className="w-full flex justify-between items-center text-xl border-b text-neutral-700 border-b-violet-500 pl-2 pb-2">
+                Detalles fiscales:
+              </h3>
+              <p>
+                <span className="font-semibold">CUIT/CUIL:</span>{" "}
+                {provider?.cuit_cuil}
+              </p>
+              <p>
+                <span className="font-semibold">Condición de IVA:</span>{" "}
+                {provider?.vat_condition === "final_consumer"
+                  ? "Consumidor final"
+                  : provider?.vat_condition === "exempt"
+                  ? "Exento"
+                  : provider?.vat_condition === "monotribute"
+                  ? "Monotributo"
+                  : "Registered"}
+              </p>
+              <p>
+                <span className="font-semibold">Límite de crédito:</span>{" "}
+                {provider?.credit_limit}
+              </p>
+            </div>
+            {/* Información adicional */}
+            <div className="mb-3 bg-white p-5 rounded-xl">
+              <h3 className="w-full flex justify-between  text-neutral-700 items-center text-xl border-b border-b-violet-500 pl-2 pb-2">
+                Información adicional:
+              </h3>
+              <div className="p-3">
+              <p>
+                <span className="font-semibold">Fecha de admisión:</span>{" "}
+                {provider?.admission_date}
+              </p>
+              <p>
+                <span className="font-semibold">Notas:</span> {provider?.notes}
+              </p>
+              <p>
+                <span className="font-semibold">Estado:</span>{" "}
+                {provider?.provider_state === "active" ? "Activo" : "Inactivo"}
+              </p></div>
             </div>
           </div>
         </>
@@ -142,7 +164,6 @@ const ProviderDetail = () => {
     </div>
   );
 };
-
 const TableRow = ({ title, value }) => {
   return (
     <tr>

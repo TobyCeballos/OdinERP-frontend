@@ -17,8 +17,8 @@ const Clock = () => {
   }, []); // El array vacío [] garantiza que el efecto se ejecute solo una vez, al montar el componente
 
   return (
-    <div className="absolute right-0 top-5">
-      <span className="border-2 rounded-full text-lg font-semibold text-white py-3 px-5  border-violet-500">{time.toLocaleTimeString()}</span>
+    <div className="absolute right-0 -top-10">
+      <span className=" rounded-full text-lg font-semibold text-white py-3 px-5">{time.toLocaleTimeString()}</span>
     </div>
   );
 };

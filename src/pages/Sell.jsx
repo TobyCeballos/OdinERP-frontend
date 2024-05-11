@@ -15,11 +15,11 @@ const Sell = () => {
   const [discount, setDiscount] = useState("");
   const [deposit, setDeposit] = useState("");
   const [userData, setUserData] = useState([]);
-  const [notification, setNotification] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [addCustomer, setAddCustomer] = useState(false);
   const [customerId, setCustomerId] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   // Función para mostrar el mensaje de notificación durante 5 segundos
   const showNotification = (message) => {
@@ -54,26 +54,40 @@ const Sell = () => {
     };
     console.log(sellData);
     try {
-      const response = await axios.post(`${API_ENDPOINT}api/sells`, sellData, {
-        headers: headers,
-      });
+      if (searchValue.trim() === "") {
+        showNotification("Debe seleccionar un cliente.");
+        return;
+      }
+      if (cart.length === 0) {
+        showNotification("Debe seleccionar al menos un producto.");
+        return;
+      }
+      const response = await axios.post(
+        `${API_ENDPOINT}api/sells/${company}/`,
+        sellData,
+        {
+          headers: headers,
+        }
+      );
       showNotification("Venta creada exitosamente.");
 
-        cart.forEach(async (item) => {
-          const updateStockData = {
-            stock: item.quantity, // Restar la cantidad del stock
-          };
-          console.log(item.quantity);
-          console.log(item.objectId);
-          // Enviar la solicitud POST para actualizar el stock y el precio de compra
-          const stockUpdateResponse = await axios.put(
-            `${API_ENDPOINT}api/products/${item.objectId}/on-sell`,
+      cart.forEach(async (item) => {
+        const updateStockData = {
+          stock: item.quantity, // Restar la cantidad del stock
+        };
+        console.log(item.quantity);
+        console.log(item.objectId);
+        // Enviar la solicitud POST para actualizar el stock y el precio de compra
+        const stockUpdateResponse = await axios
+          .put(
+            `${API_ENDPOINT}api/products/${company}/${item.objectId}/on-sell`,
             updateStockData,
             { headers: headers }
-          ).then(response => {
-            showNotification("Hubo variaciones en el stock")
+          )
+          .then((response) => {
+            showNotification("Hubo variaciones en el stock");
           });
-        });
+      });
       if (payCondition === "current_account") {
         console.log(customerId);
         // Si la condición de pago es 'current_account', hacer la petición para añadir los productos al carrito de cuenta corriente del cliente
@@ -82,7 +96,7 @@ const Sell = () => {
           cart: cart,
         };
         const addToCurrentAccountResponse = await axios.post(
-          `${API_ENDPOINT}api/customers/${customerId}/addToCurrentAccountCart`,
+          `${API_ENDPOINT}api/customers/${company}/${customerId}/addToCurrentAccountCart`,
           addToCurrentAccountData,
           {
             headers: headers,
@@ -103,6 +117,7 @@ const Sell = () => {
     }
   };
 
+  const company = localStorage.getItem("company");
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const headers = {
@@ -152,7 +167,7 @@ const Sell = () => {
         cart.map(async (item) => {
           // Realizar consulta por cada productId en el carrito
           const response = await axios.get(
-            `${API_ENDPOINT}api/products/${item.objectId}`,
+            `${API_ENDPOINT}api/products/${company}/${item.objectId}`,
             {
               headers: headers,
             }
@@ -178,7 +193,7 @@ const Sell = () => {
     } else {
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/customers/search/${value}`,
+          `${API_ENDPOINT}api/customers/${company}/search/${value}`,
           { headers }
         );
         if (response.data.length <= 0) {
@@ -198,6 +213,7 @@ const Sell = () => {
     setProductsCart([]);
     setCart([]);
     setCashRegister("");
+    setSearchValue("");
     setDescription("");
     setShippingAddress("");
     setWarranty("");
@@ -227,7 +243,7 @@ const Sell = () => {
         },
       };
       const response = await axios.post(
-        `${API_ENDPOINT}api/customers/automaticCustomer/${customerName}`,
+        `${API_ENDPOINT}api/customers/${company}/automaticCustomer/${customerName}`,
         {},
         config
       );

@@ -9,40 +9,35 @@ import Loader from "./Loader";
 import AddEditFormModal from "./AddEditFormModal";
 
 const ProductDetail = () => {
-  // Estado para almacenar la información del producto
   const [product, setProduct] = useState(null);
   const { productId } = useParams();
-
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const company = localStorage.getItem("company");
 
   const config = {
     headers: {
       "x-access-token": `${token}`,
     },
   };
-  // Función para obtener los detalles del producto usando Axios
+
   const getProduct = async () => {
     try {
-      // Realizar la consulta a la API usando Axios
       const response = await axios
-        .get(`${API_ENDPOINT}api/products/${productId}`, config)
+        .get(`${API_ENDPOINT}api/products/${company}/${productId}`, config)
         .then((response) => {
           console.log(response.data);
           setProduct(response.data);
         });
-
-      // Establecer los detalles del producto en el estado
     } catch (error) {
       console.error("Error al obtener los detalles del producto:", error);
     }
   };
 
-  // Llamar a la función getProduct cuando el componente se monta
   useEffect(() => {
     getProduct();
   }, []);
-  // Si el producto ha sido cargado, mostrar sus detalles
+
   return (
     <div className="px-5 pt-20">
       <div className="w-full flex justify-between text-2xl border-b border-b-violet-500 pl-2 pb-2">

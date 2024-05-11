@@ -12,6 +12,7 @@ const UploadExcel = ({fetchProducts}) => {
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState(null); 
 
+  const company = localStorage.getItem("company");
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -90,7 +91,7 @@ const UploadExcel = ({fetchProducts}) => {
   const uploadProduct = async (productData) => {
     try {
       const response = await axios.post(
-        `${API_ENDPOINT}api/products`,
+        `${API_ENDPOINT}api/products/${company}/`,
         productData,
         config
       ).then((response) => showNotification(response.data.message));

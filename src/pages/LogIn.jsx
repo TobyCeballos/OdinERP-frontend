@@ -6,10 +6,18 @@ import { API_ENDPOINT } from "../utils/config";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  // Función para mostrar el mensaje de notificación durante 5 segundos
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    showNotification("");
     try {
       const response = await axios.post(`${API_ENDPOINT}api/auth/signin`, {
         email,
@@ -17,11 +25,13 @@ const Login = () => {
       });
       const userId = response.data.userId;
       const token = response.data.token;
+      const company = response.data.company;
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
+      localStorage.setItem("company", company);
       window.location.href = "/";
     } catch (error) {
-      setError(error.message);
+      showNotification(error.response.data.message);
     }
   };
 
@@ -76,6 +86,11 @@ const Login = () => {
             </span>
           </div>
         </form>
+      {notification && (
+        <div className="bg-violet-500 text-white py-2 px-4 rounded-full absolute bottom-4 right-1/2 translate-x-1/2">
+          {notification}
+        </div>
+      )}
       </div>
     </>
   );

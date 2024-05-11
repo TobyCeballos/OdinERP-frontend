@@ -56,6 +56,7 @@ const AddEditProvider = ({
     setProviderState("active");
   };
 
+  const company = localStorage.getItem("company");
   const headers = {
     "x-access-token": token,
   };
@@ -79,11 +80,11 @@ const AddEditProvider = ({
       };
 
       if (providerToUpdate) {
-        await axios.put(`${API_ENDPOINT}api/providers/${providerId}`, data, {
+        await axios.put(`${API_ENDPOINT}api/providers/${company}/${providerId}`, data, {
           headers: headers,
         });
       } else {
-        await axios.post(`${API_ENDPOINT}api/providers`, data, {
+        await axios.post(`${API_ENDPOINT}api/providers/${company}/`, data, {
           headers: headers,
         });
       }

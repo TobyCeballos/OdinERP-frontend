@@ -9,7 +9,7 @@ import AddEditFormModal from "./AddEditFormModal";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { IoWarningOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
-
+import Loader from "./Loader";
 import { API_ENDPOINT } from "../utils/config";
 import UploadExcel from "./UploadExcel";
 
@@ -37,7 +37,12 @@ function TableHead({ selectable, hiddenColumns }) {
   return (
     <thead className="bg-violet-700 text-white">
       <tr>
-        {selectable && <th>+</th>}
+        {selectable && (
+          <>
+            <th>+</th>
+            <th>cant</th>
+          </>
+        )}
         {tableHead.map(
           (head, colIndex) =>
             !hiddenColumns.includes(colIndex) && (
@@ -56,7 +61,7 @@ function TableBody({
   hiddenColumns,
   handleRowClick,
   addToCart,
-  showNotification
+  showNotification,
 }) {
   const renderCellContent = (key, product) => {
     switch (key) {
@@ -132,7 +137,13 @@ function TableBody({
         return null;
     }
   };
+  const [quantities, setQuantities] = useState({}); // Estado para almacenar las cantidades de cada producto
 
+  // Manejar el cambio de cantidad para un producto específico
+  const handleQuantityChange = (productId, quantity) => {
+    setQuantities({ ...quantities, [productId]: quantity });
+    
+  };
   return (
     <>
       {products.length > 0 ? (
@@ -143,31 +154,47 @@ function TableBody({
               className="hover:bg-orange-100 font-semibold odd:bg-gray-100 text-neutral-700"
             >
               {selectable && (
-                <td className="text-center">
-                  {product.stock >= 1 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        addToCart(product._id);
-                      }}
-                      className="text-violet-500 flex justify-center ml-1"
-                    >
-                      <FaPlus />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        addToCart(product._id);
-                        showNotification("Producto por debajo del stock minimo")
-                      }}
-                    >
-                      <span className="text-red-500 flex justify-center ml-1">
-                        <IoWarningOutline />
-                      </span>
-                    </button>
-                  )}
-                </td>
+                <>
+                  <td className="text-center">
+                    {product.stock >= 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToCart(product._id, quantities[product._id]|| 1);
+                        }}
+                        className="text-violet-500 flex justify-center ml-1"
+                      >
+                        <FaPlus />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToCart(product._id, quantities[product._id]|| 1);
+                          showNotification(
+                            "Producto por debajo del stock minimo"
+                          );
+                        }}
+                      >
+                        <span className="text-red-500 flex justify-center ml-1">
+                          <IoWarningOutline />
+                        </span>
+                      </button>
+                    )}
+                  </td>
+                  <td>
+                    <input
+                      min={1}
+                      placeholder="1"
+                      value={quantities[product._id]}
+                      onChange={(e) =>
+                        handleQuantityChange(product._id, e.target.value)
+                      }
+                      className="w-16 text-white text-center rounded-full"
+                      type="number"
+                    />
+                  </td>
+                </>
               )}
 
               {Object.keys(product).map(
@@ -215,7 +242,7 @@ const ProductTable = ({
   cart,
   setCart,
   updateProductsCart,
-  showNotification
+  showNotification,
 }) => {
   const [hiddenColumns, setHiddenColumns] = useState([
     0, 3, 4, 6, 8, 9, 13, 14,
@@ -224,28 +251,32 @@ const ProductTable = ({
   const [count, setCount] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  const addToCart = (productId) => {
+  const company = localStorage.getItem("company");
+  const addToCart = (productId, quantityToAdd = 1) => {
     // Verificar si el producto ya está en el carrito
     const existingProductIndex = cart.findIndex(
       (item) => item.objectId === productId
     );
-
+  
     if (existingProductIndex !== -1) {
-      // Si el producto ya está en el carrito, incrementar la cantidad
+      // Si el producto ya está en el carrito, sumar la cantidad especificada
       const updatedCart = [...cart];
-      updatedCart[existingProductIndex].quantity++;
+      const currentQuantity = updatedCart[existingProductIndex].quantity;
+      updatedCart[existingProductIndex].quantity = currentQuantity + parseInt(quantityToAdd);
       setCart(updatedCart);
       updateProductsCart();
     } else {
-      // Si el producto no está en el carrito, agregarlo con cantidad 1
+      // Si el producto no está en el carrito, agregarlo con la cantidad especificada
       setCart((prevCart) => [
         ...prevCart,
-        { objectId: productId, quantity: 1 },
+        { objectId: productId, quantity: parseInt(quantityToAdd) },
       ]);
     }
   };
-
+  
+  
   const navigate = useNavigate();
   const handleRowClick = (productId) => {
     // Redirigir al usuario a la página de detalles del producto
@@ -269,13 +300,19 @@ const ProductTable = ({
     },
   };
 
-  const fetchProducts = () => {
-    axios
-      .get(`${API_ENDPOINT}api/products?page=${currentPage}`, config)
-      .then((res) => {
-        setProducts(res.data);
-        console.log(res.data);
-      });
+  const fetchProducts = async () => {
+    setLoading(true); // Activar la carga al comenzar la solicitud de la API
+    try {
+      const response = await axios.get(
+        `${API_ENDPOINT}api/products/${company}?page=${currentPage}`,
+        config
+      );
+      setProducts(response.data);
+      setLoading(false); // Desactivar la carga después de recibir los datos
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setLoading(false); // Desactivar la carga en caso de error
+    }
   };
 
   useEffect(() => {
@@ -295,7 +332,10 @@ const ProductTable = ({
     if (value.trim() === "") {
       // Si el input está vacío, obtener todos los productos
       try {
-        const response = await axios.get(`${API_ENDPOINT}api/products`, config);
+        const response = await axios.get(
+          `${API_ENDPOINT}api/products/${company}`,
+          config
+        );
         setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -304,7 +344,7 @@ const ProductTable = ({
       // Si hay un término de búsqueda, realizar la búsqueda
       try {
         const response = await axios.get(
-          `${API_ENDPOINT}api/products/search/${value}`,
+          `${API_ENDPOINT}api/products/${company}/search/${value}`,
           config
         );
         setProducts(response.data);
@@ -358,21 +398,30 @@ const ProductTable = ({
       <div
         className={`w-full flex flex-col mt-3 rounded-xl overflow-y-hidden overflow-x-auto bg-neutral-800`}
       >
-        <table className="bg-white max-w-full text-left">
-          <TableHead selectable={selectable} hiddenColumns={hiddenColumns} />
-          <TableBody
-            addToCart={addToCart}
-            selectable={selectable}
-            products={products}
-            hiddenColumns={hiddenColumns}
-            handleRowClick={handleRowClick}
-            showNotification={showNotification}
-          />
-        </table>
-        {someColumnsVisible && (
-          <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
-            Por favor, selecciona una columna para mostrar. ;)
-          </div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            <table className="bg-white max-w-full text-left">
+              <TableHead
+                selectable={selectable}
+                hiddenColumns={hiddenColumns}
+              />
+              <TableBody
+                addToCart={addToCart}
+                selectable={selectable}
+                products={products}
+                hiddenColumns={hiddenColumns}
+                handleRowClick={handleRowClick}
+                showNotification={showNotification}
+              />
+            </table>
+            {someColumnsVisible && (
+              <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
+                Por favor, selecciona una columna para mostrar. ;)
+              </div>
+            )}
+          </>
         )}
       </div>
       {footerOptions === true && (
