@@ -21,46 +21,63 @@ import NotFound from "./pages/NotFound.jsx";
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
-        <Route path="/signin" element={<Login />} />
+        <Route exact path="/signin" element={<Login />} />
         <Route path="/*" element={<NotFound />} />
-        <Route exact path="/" element={<ProtectedRoute component={Home} />} />
+        <Route
+          exact
+          path="/"
+          element={
+            <>
+              <Navbar />
+              <ProtectedRoute component={Home} />
+            </>
+          }
+        />
         <Route
           path="/POS/stock"
-          element={<ProtectedRoute component={Stock} />}
+          element={<><Navbar /><ProtectedRoute component={Stock} /></>}
         />
-        <Route path="/POS/sell" element={<ProtectedRoute component={Sell} />} />
-        <Route path="/POS/sales" element={<ProtectedRoute component={Sales} />} />
-        
-        <Route path="/POS/customers" element={<ProtectedRoute component={Customers} />} />
-        <Route path="/POS/providers" element={<ProtectedRoute component={Providers} />} />
-        <Route path="/POS/add-inventory" element={<ProtectedRoute component={AddInventory} />} />
+        <Route path="/POS/sell" element={<><Navbar /><ProtectedRoute component={Sell} /></>} />
+        <Route
+          path="/POS/sales"
+          element={<><Navbar /><ProtectedRoute component={Sales} /></>}
+        />
+
+        <Route
+          path="/POS/customers"
+          element={<><Navbar /><ProtectedRoute component={Customers} /></>}
+        />
+        <Route
+          path="/POS/providers"
+          element={<><Navbar /><ProtectedRoute component={Providers} /></>}
+        />
+        <Route
+          path="/POS/add-inventory"
+          element={<><Navbar /><ProtectedRoute component={AddInventory} /></>}
+        />
 
         <Route
           path="/POS/stock/details/:productId"
-          element={<ProtectedRoute component={ProductDetail} />}
+          element={<><Navbar /><ProtectedRoute component={ProductDetail} /></>}
         ></Route>
         <Route
           path="/POS/customers/details/:customerId"
-          element={<ProtectedRoute component={CustomerDetail} />}
+          element={<><Navbar /><ProtectedRoute component={CustomerDetail} /></>}
         ></Route>
         <Route
           path="/POS/provider/details/:providerId"
-          element={<ProtectedRoute component={ProviderDetail} />}
+          element={<><Navbar /><ProtectedRoute component={ProviderDetail} /></>}
         ></Route>
         <Route
           path="/POS/sales/details/:saleId"
-          element={<ProtectedRoute component={SaleDetail} />}
-          ></Route>
-          <Route
-            path="/profile/:userId"
-            element={<ProtectedRoute component={ProfilePage} />}
-            ></Route>
-          <Route
-            path="/CRM"
-            element={<ProtectedRoute component={CRM} />}
-          />
+          element={<><Navbar /><ProtectedRoute component={SaleDetail} /></>}
+        ></Route>
+        <Route
+          path="/profile/:userId"
+          element={<><Navbar /><ProtectedRoute component={ProfilePage} /></>}
+        ></Route>
+        <Route path="/CRM" element={<><Navbar /><ProtectedRoute component={CRM} /></>} />
       </Routes>
     </Router>
   );

@@ -30,8 +30,8 @@ const tableHead = [
   "Min. qty",
   "Max. qty",
   "Estado",
-  "F. Modif",
   "F. de carga",
+  "F. Modif",
 ];
 function TableHead({ selectable, hiddenColumns }) {
   return (
@@ -82,13 +82,16 @@ function TableBody({
       case "brand":
         return product.brand;
       case "purchase_price":
-        return product.purchase_price;
+        return "$" + product.purchase_price;
       case "current_price":
-        return parseFloat(product.current_price).toFixed(2);
+        return "$" + parseFloat(product.current_price).toFixed(2);
       case "sale_price":
-        return parseFloat(
-          product.current_price * (1 + product.sale_price / 100)
-        ).toFixed(2);
+        return (
+          "$" +
+          parseFloat(
+            product.current_price * (1 + product.sale_price / 100)
+          ).toFixed(2)
+        );
       case "unit_measurement":
         return product.unit_measurement;
       case "stock":
@@ -115,8 +118,8 @@ function TableBody({
             </span>
           );
         }
-      case "updatedAt":
-        return new Date(product.updatedAt).toLocaleDateString("es-AR", {
+      case "createdAt":
+        return new Date(product.createdAt).toLocaleDateString("es-AR", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -124,8 +127,8 @@ function TableBody({
           minute: "2-digit",
           second: "2-digit",
         });
-      case "createdAt":
-        return new Date(product.createdAt).toLocaleDateString("es-AR", {
+      case "updatedAt":
+        return new Date(product.updatedAt).toLocaleDateString("es-AR", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -142,7 +145,6 @@ function TableBody({
   // Manejar el cambio de cantidad para un producto específico
   const handleQuantityChange = (productId, quantity) => {
     setQuantities({ ...quantities, [productId]: quantity });
-    
   };
   return (
     <>
@@ -160,7 +162,7 @@ function TableBody({
                       <button
                         type="button"
                         onClick={() => {
-                          addToCart(product._id, quantities[product._id]|| 1);
+                          addToCart(product._id, quantities[product._id] || 1);
                         }}
                         className="text-violet-500 flex justify-center ml-1"
                       >
@@ -170,7 +172,7 @@ function TableBody({
                       <button
                         type="button"
                         onClick={() => {
-                          addToCart(product._id, quantities[product._id]|| 1);
+                          addToCart(product._id, quantities[product._id] || 1);
                           showNotification(
                             "Producto por debajo del stock minimo"
                           );
@@ -259,12 +261,13 @@ const ProductTable = ({
     const existingProductIndex = cart.findIndex(
       (item) => item.objectId === productId
     );
-  
+
     if (existingProductIndex !== -1) {
       // Si el producto ya está en el carrito, sumar la cantidad especificada
       const updatedCart = [...cart];
       const currentQuantity = updatedCart[existingProductIndex].quantity;
-      updatedCart[existingProductIndex].quantity = currentQuantity + parseInt(quantityToAdd);
+      updatedCart[existingProductIndex].quantity =
+        currentQuantity + parseInt(quantityToAdd);
       setCart(updatedCart);
       updateProductsCart();
     } else {
@@ -275,15 +278,14 @@ const ProductTable = ({
       ]);
     }
   };
-  
-  
+
   const navigate = useNavigate();
   const handleRowClick = (productId) => {
     // Redirigir al usuario a la página de detalles del producto
     navigate(`/POS/stock/details/${productId}`);
   };
   const nextPage = () => {
-    setCurrentPage(currentPage + 1);
+    setCurrentPage(parseInt(currentPage) + 1);
   };
 
   const prevPage = () => {
@@ -398,15 +400,13 @@ const ProductTable = ({
       <div
         className={`w-full flex flex-col mt-3 rounded-xl overflow-y-hidden overflow-x-auto bg-neutral-800`}
       >
-        {loading ? (
-          <Loader />
-        ) : (
-          <>
-            <table className="bg-white max-w-full text-left">
-              <TableHead
-                selectable={selectable}
-                hiddenColumns={hiddenColumns}
-              />
+        <>
+          <table className="bg-white max-w-full text-left">
+            <TableHead selectable={selectable} hiddenColumns={hiddenColumns} />
+            {loading ? (
+              <div className="h-[69vh] w-full overflow-hidden">
+              <Loader modified={true}/></div>
+            ) : (
               <TableBody
                 addToCart={addToCart}
                 selectable={selectable}
@@ -415,14 +415,14 @@ const ProductTable = ({
                 handleRowClick={handleRowClick}
                 showNotification={showNotification}
               />
-            </table>
-            {someColumnsVisible && (
-              <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
-                Por favor, selecciona una columna para mostrar. ;)
-              </div>
             )}
-          </>
-        )}
+          </table>
+          {someColumnsVisible && (
+            <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
+              Por favor, selecciona una columna para mostrar. ;)
+            </div>
+          )}
+        </>
       </div>
       {footerOptions === true && (
         <div className="bg-white flex justify-between w-full p-2 rounded-xl mt-2">
@@ -447,7 +447,12 @@ const ProductTable = ({
               >
                 <IoIosArrowBack />
               </button>
-              <span>{currentPage}</span>
+              <input
+                type="number"
+                className="w-28 text-center bg-white border rounded-full"
+                value={currentPage}
+                onChange={(e) => setCurrentPage(e.target.value)}
+              />
               <button
                 type="button"
                 onClick={nextPage}

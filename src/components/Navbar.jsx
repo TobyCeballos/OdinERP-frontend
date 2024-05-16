@@ -4,7 +4,7 @@ import Loader from "./Loader";
 import { FaUserCircle } from "react-icons/fa";
 
 import POSCollapse from "./POSCollapse";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { API_ENDPOINT } from "../utils/config";
 
 const Navbar = () => {
@@ -15,6 +15,39 @@ const Navbar = () => {
 
   const token = localStorage.getItem("token");
   const [time, setTime] = useState(new Date());
+
+
+  
+  useEffect(() => {
+    const handleUnauthorized = (error) => {
+      if (error.response && error.response.status === 401) {
+        // Redirigir al usuario a la página de inicio de sesión
+        return <Navigate to="/signin" />
+      }
+    };
+    const handleNotFound = (error) => {
+      if (error.response && error.response.status === 404) {
+        // Redirigir al usuario a la página de inicio de sesión
+        return <Navigate to="/404" />
+      }
+    };
+
+    // Agregar un interceptor para manejar las respuestas 401 en toda la aplicación
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        handleNotFound(error);
+        handleUnauthorized(error);
+        return Promise.reject(error);
+      }
+    );
+
+    // Limpia el interceptor al desmontar el componente
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [Navigate]);
+
 
   useEffect(() => {
     // Función para actualizar el estado de la hora cada segundo
@@ -55,20 +88,27 @@ const Navbar = () => {
 
     // Agregar el manejador de eventos al documento
     document.addEventListener("mousedown", handleClickOutside);
-
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        await axios
-          .get(`${API_ENDPOINT}api/users/${userId}`, config)
-          .then((response) => {
-            console.log(response.data);
-            setUserData(response.data);
-            setLoading(false);
-          })
-          .catch((err) => console.error(`Error! ${err}`));
+        const response = await axios.get(`${API_ENDPOINT}api/users/${userId}`, config);
+        console.log(response.data);
+        setUserData(response.data);
+        setLoading(false);
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
+        if (error.response) {
+          if (error.response.status === 401) {
+            // Redirect to signin page
+            window.location.href = '/signin';
+          } else if (error.response.status === 404) {
+            // Navigate to 404 page
+            navigate('/404');
+          }
+        } else {
+          console.error("Network error:", error.message);
+          // Handle other types of errors here
+        }
       }
     };
     fetchUserData();

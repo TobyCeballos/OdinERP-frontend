@@ -5,12 +5,13 @@ import Calendar from "../components/Calendar";
 import Clock from "../components/Clock";
 import NewsCard from "../components/NewsCard";
 import { API_ENDPOINT } from "../utils/config.js";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [news, setNews] = useState([]);
   const [dollarData, setDollarData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const Navigate = useNavigate();
   const getDollarData = async () => {
     try {
       await axios.get("https://api.bluelytics.com.ar/v2/latest").then((res) => {
@@ -23,7 +24,7 @@ const Home = () => {
     }
   };
   const token = localStorage.getItem("token");
-  
+
   const config = {
     headers: {
       "x-access-token": `${token}`,
@@ -31,11 +32,29 @@ const Home = () => {
   };
   const getNews = async () => {
     try {
-      await axios.get(`${API_ENDPOINT}api/news`, config).then((res) => {
-        console.log(res.data);
-        setNews(res.data);
-        setLoading(false);
-      });
+      await axios
+        .get(`${API_ENDPOINT}api/news`, config)
+        .then((res) => {
+          console.log(res.data);
+          setNews(res.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          if (error.response) {
+            if (error.response.status === 401) {
+              console.log("redirecting");
+              localStorage.clear();
+              window.location.href = "/signin";
+            } else if (error.response.status === 404) {
+              // Navigate to 404 page
+              Navigate("/404");
+            }
+          } else {
+            console.error("Network error:", error.message);
+            // Handle other types of errors here
+          }
+        });
     } catch (error) {
       console.log(error);
     }
@@ -95,17 +114,20 @@ const Home = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-3 text-xl">
-                <h2 className="text-white pl-2">Avisos de Actualizaciones</h2>
-
-                {news.map((item, index) => (
-                  <NewsCard
-                    key={index} // Asegúrate de proporcionar una key única para cada elemento de la lista
-                    title={item.title}
-                    content={item.content}
-                    date={item.date}
-                  />
-                ))}
+              <div className="mt-3 text-xl h-[62vh] overflow-x-auto">
+                <h2 className="text-white pl-2 bg-neutral-900 fixed w-full">
+                  Avisos de Actualizaciones
+                </h2>
+                <div className="mt-8">
+                  {news.map((item, index) => (
+                    <NewsCard
+                      key={index} // Asegúrate de proporcionar una key única para cada elemento de la lista
+                      title={item.title}
+                      content={item.content}
+                      date={item.date}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
             <div className="relative w-1/2">

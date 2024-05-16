@@ -15,23 +15,38 @@ const Login = () => {
       setNotification(null);
     }, 5000);
   };
+      const toggleUserState = async() => {
+        const token=localStorage.getItem("token")
+        const userId = localStorage.getItem("userId")
+      };
   const handleSubmit = async (e) => {
     e.preventDefault();
     showNotification("");
     try {
-      const response = await axios.post(`${API_ENDPOINT}api/auth/signin`, {
-        email,
-        password,
-      });
-      const userId = response.data.userId;
-      const token = response.data.token;
-      const company = response.data.company;
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("company", company);
+      const response = await axios
+        .post(`${API_ENDPOINT}api/auth/signin`, {
+          email,
+          password,
+        })
+        .then(async(response) => {
+          toggleUserState();
+          const userId = response.data.userId;
+          const token = response.data.token;
+          const company = response.data.company;
+          localStorage.setItem("token", token);
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("company", company);
+        // Llamar al endpoint toggleUserState
+        await axios.get(`${API_ENDPOINT}api/users/state-handler/${userId}`, {
+          headers: {
+            "x-access-token": token,
+          },
+        });
+        });
+
       window.location.href = "/";
     } catch (error) {
-      showNotification(error.response.data.message);
+      console.log(error);
     }
   };
 
@@ -86,11 +101,11 @@ const Login = () => {
             </span>
           </div>
         </form>
-      {notification && (
-        <div className="bg-violet-500 text-white py-2 px-4 rounded-full absolute bottom-4 right-1/2 translate-x-1/2">
-          {notification}
-        </div>
-      )}
+        {notification && (
+          <div className="bg-violet-500 text-white py-2 px-4 rounded-full absolute bottom-4 right-1/2 translate-x-1/2">
+            {notification}
+          </div>
+        )}
       </div>
     </>
   );
