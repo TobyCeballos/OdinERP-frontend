@@ -57,9 +57,8 @@ const UploadExcel = ({fetchProducts}) => {
   
     try {
       for (let productData of jsonData) {
-        // Agregar sale_price y product_provider al objeto productData
-        productData.sale_price = gain; // Reemplaza 0 con el valor correspondiente
-        productData.product_provider = searchValue; // Reemplaza "proveedor" con el valor correspondiente
+        productData.sale_price = gain;
+        productData.product_provider = searchValue; 
         
         await uploadProduct(productData);
         productsUploaded++;

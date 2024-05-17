@@ -101,7 +101,7 @@ const Navbar = () => {
           if (error.response.status === 401) {
             // Redirect to signin page
             localStorage.clear();
-            window.location.href = '/';
+            window.location.href = '/signin';
           } else if (error.response.status === 404) {
             // Navigate to 404 page
             navigate('/404');
