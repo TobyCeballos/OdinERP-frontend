@@ -49,8 +49,11 @@ const SaleDetail = () => {
   };
 
   const deleteSale = async (sale_id) => {
-     try {
-      await axios.delete(`${API_ENDPOINT}api/sells/${company}/${saleId}`, config);
+    try {
+      await axios.delete(
+        `${API_ENDPOINT}api/sells/${company}/${saleId}`,
+        config
+      );
       setIsLoading(false); // Desactivar el indicador de carga después de completar la operación
       navigate("/POS/stock");
     } catch (error) {
@@ -107,6 +110,38 @@ const SaleDetail = () => {
             </div>
           </div>
           <div className="p-1 w-full overflow-auto">
+            <div className="bg-white p-4 rounded-md shadow-md mb-4">
+              <h3 className="w-full flex  justify-between text-xl mb-3 border-b border-b-violet-500 pl-5 pb-2">
+                Detalles del Cliente
+              </h3>
+              <p>
+                <span className="font-semibold">Cliente:</span> {sale?.customer}
+              </p>
+              <p>
+                <span className="font-semibold">Dirección de Envío:</span>{" "}
+                {sale?.shippingAddress || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Condición de IVA:</span>{" "}
+                {sale?.vat_condition === "final_consumer"
+                  ? "Consumidor final"
+                  : sale?.vat_condition === "exempt"
+                  ? "Excento"
+                  : sale?.vat_condition === "monotribute"
+                  ? "Monotributo"
+                  : "Responsable inscripto"}
+              </p>
+              <p>
+                <span className="font-semibold">Condición de Pago:</span>{" "}
+                {sale?.payCondition}
+              </p>
+              <p>
+                <span className="font-semibold">Descripción:</span>{" "}
+                {sale?.description}
+              </p>
+            </div>
+
+            <h3 className="text-lg font-semibold mb-2">Listado de Productos</h3>
             {productsCart.length > 0 ? (
               <table className="w-full text-left rounded-md overflow-hidden">
                 <thead>
@@ -165,7 +200,8 @@ const SaleDetail = () => {
                   <span className="ml-2">
                     $
                     {parseFloat(
-                      totalCartPrice * (1 - sale?.discount / 100) - sale?.deposit
+                      totalCartPrice * (1 - sale?.discount / 100) -
+                        sale?.deposit
                     ).toFixed(2)}
                   </span>
                 </div>

@@ -6,7 +6,6 @@ const RedirectOnUnauthorized = ({ children }) => {
 
   useEffect(() => {
     const handleUnauthorized = (error) => {
-      console.log("este es el error => "+error);
       if (error.response && error.response.status === 401) {
         // Redirigir al usuario a la página de inicio de sesión
         

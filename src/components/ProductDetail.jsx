@@ -26,7 +26,6 @@ const ProductDetail = () => {
       const response = await axios
         .get(`${API_ENDPOINT}api/products/${company}/${productId}`, config)
         .then((response) => {
-          console.log(response.data);
           setProduct(response.data);
         });
     } catch (error) {

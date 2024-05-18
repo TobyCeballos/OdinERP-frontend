@@ -52,7 +52,6 @@ const Sell = () => {
       deposit,
       cart,
     };
-    console.log(sellData);
     try {
       if (searchValue.trim() === "") {
         showNotification("Debe seleccionar un cliente.");
@@ -75,8 +74,6 @@ const Sell = () => {
         const updateStockData = {
           stock: item.quantity, // Restar la cantidad del stock
         };
-        console.log(item.quantity);
-        console.log(item.objectId);
         // Enviar la solicitud POST para actualizar el stock y el precio de compra
         const stockUpdateResponse = await axios
           .put(
@@ -89,7 +86,6 @@ const Sell = () => {
           });
       });
       if (payCondition === "current_account") {
-        console.log(customerId);
         // Si la condición de pago es 'current_account', hacer la petición para añadir los productos al carrito de cuenta corriente del cliente
         const addToCurrentAccountData = {
           customerId: customerId, // Supongo que tienes el cliente seleccionado almacenado en alguna variable 'customer'
@@ -101,10 +97,6 @@ const Sell = () => {
           {
             headers: headers,
           }
-        );
-        console.log(
-          "Productos agregados al carrito de cuenta corriente:",
-          addToCurrentAccountResponse.data
         );
         // Aquí puedes realizar cualquier acción adicional después de agregar los productos al carrito de cuenta corriente
       }
@@ -130,7 +122,6 @@ const Sell = () => {
         await axios
           .get(`${API_ENDPOINT}api/users/${userId}`, { headers })
           .then((response) => {
-            console.log(response.data);
             setUserData(response.data);
             setCashRegister(response.data.user_id);
           })
@@ -178,7 +169,6 @@ const Sell = () => {
           return productData;
         })
       );
-      console.log(updatedProducts);
       setProductsCart(updatedProducts);
     } catch (error) {
       console.error("Error al actualizar los productos del carrito:", error);
@@ -247,7 +237,6 @@ const Sell = () => {
         {},
         config
       );
-      console.log("Cliente creado:", response.data);
       setShowSearch(false);
       showNotification("Cliente creado exitosamente.");
     } catch (error) {
@@ -285,7 +274,6 @@ const Sell = () => {
                 customers.map((customer, index) => (
                   <div
                     onClick={() => {
-                      console.log(customer);
                       setSearchValue(customer.customer_name);
                       setShippingAddress(customer.shipping_address);
                       setVatCondition(customer.vat_condition);

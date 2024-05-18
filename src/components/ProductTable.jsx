@@ -229,6 +229,36 @@ function TableBody({
     </>
   );
 }
+function reorderProductData(productData) {
+  const orderedProductData = {};
+
+  // Define el orden deseado de las columnas
+  const desiredColumnOrder = [
+    "_id",
+    "product_id",
+    "product_name",
+    "product_provider",
+    "provider_product_id",
+    "description",
+    "category",
+    "brand",
+    "purchase_price",
+    "current_price",
+    "sale_price",
+    "unit_measurement",
+    "stock",
+    "min_stock",
+    "max_stock",
+    "product_state",
+    "createdAt",
+    "updatedAt"
+  ];
+  desiredColumnOrder.forEach((key) => {
+    orderedProductData[key] = productData[key];
+  });
+
+  return orderedProductData;
+}
 
 const ProductTable = ({
   name,
@@ -309,7 +339,10 @@ const ProductTable = ({
         `${API_ENDPOINT}api/products/${company}?page=${currentPage}`,
         config
       );
-      setProducts(response.data);
+
+      // Reorganizar los datos antes de pasarlos al componente TableBody
+      const reorderedProducts = response.data.map(reorderProductData);
+      setProducts(reorderedProducts);
       setLoading(false); // Desactivar la carga después de recibir los datos
     } catch (error) {
       console.error("Error fetching products:", error);

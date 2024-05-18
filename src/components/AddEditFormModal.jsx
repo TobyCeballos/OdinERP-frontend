@@ -80,7 +80,6 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
         max_stock: maxQty,
         product_state: status,
       };
-      console.log(data.product_name + ": " + token);
       if (productToUpdate) {
         await axios
           .put(`${API_ENDPOINT}api/products/${company}/${productId}`, data, { headers: headers })

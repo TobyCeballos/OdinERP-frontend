@@ -1,132 +1,50 @@
-import React, { useState } from "react";
 import { SiMicrosoftexcel } from "react-icons/si";
-import * as XLSX from "xlsx";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_ENDPOINT } from "../utils/config";
+import io from 'socket.io-client';
 
-const UploadExcel = ({fetchProducts}) => {
+const socket = io('http://192.168.0.18:4000');
+
+const UploadExcel = ({ fetchProducts }) => {
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [gain, setGain] = useState("");
-  const [productProvider, setProductProvider] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [notification, setNotification] = useState(null); 
-
-  const [showSearch, setShowSearch] =useState(false)
-  const [searchValue, setSearchValue] =useState("")  
+  const [notification, setNotification] = useState(null);
   const [providers, setProviders] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [providerId, setProviderId] = useState(null);
+  const [bulkLoad, setBulkLoad] = useState(false);
+    const token = localStorage.getItem("token");
+    const company = localStorage.getItem("company");
+  
+    useEffect(() => {
+      socket.on('progress', (data) => {
+        showNotification("Aguarde unos segundos, una IA está corroborando los datos.")
+        console.log(data.progress);
+        setProgress(data.progress);
+      });
+  
+      return () => {
+        socket.off('progress');
+      };
+    }, []);
 
-
-  const company = localStorage.getItem("company");
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
   };
+
   const showNotification = (message) => {
     setNotification(message);
     setTimeout(() => {
       setNotification(null);
     }, 5000);
   };
-  const token = localStorage.getItem("token");
 
-  const config = {
-    headers: {
-      "x-access-token": `${token}`,
-    },
-  };
 
-  const handleUpload = async () => {
-    if (!file) {
-      showNotification("No se ha seleccionado ningún archivo");
-      return;
-    }
-  
-    const workbook = await readExcelFile(file);
-  
-    if (!workbook) {
-      showNotification("No se pudo leer el archivo Excel");
-      return;
-    }
-  
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
-  
-    const totalProducts = jsonData.length;
-    let productsUploaded = 0;
-  
-    try {
-      for (let productData of jsonData) {
-        productData.sale_price = gain;
-        productData.product_provider = searchValue; 
-        
-        await uploadProduct(productData);
-        productsUploaded++;
-        const progress = ((productsUploaded / totalProducts) * 100).toFixed(2);
-        setProgress(progress);
-      }
-      fetchProducts();
-      setShowModal(false);
-      showNotification("Todos los productos han sido cargados correctamente");
-    } catch (error) {
-      showNotification("Error al cargar los productos", error);
-    }
-  };
-  
-
-  const readExcelFile = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        resolve(workbook);
-      };
-
-      reader.onerror = (error) => {
-        reject(error);
-      };
-
-      reader.readAsArrayBuffer(file);
-    });
-  };
-
-  const uploadProduct = async (productData) => {
-    try {
-      const response = await axios.post(
-        `${API_ENDPOINT}api/products/${company}/`,
-        productData,
-        config
-      ).then((response) => showNotification(response.data.message));
-    } catch (error) {
-      showNotification("Error al cargar el producto:", error);
-      throw error; // Relanza el error para manejarlo en la función handleUpload
-    }
-  };
-  const handleSearch = async (event) => {
-    const { value } = event.target;
-    setShowSearch(true);
-    setSearchValue(value);
-    if (value.trim() === "") {
-      setShowSearch(false);
-    } else {
-      try {
-        const response = await axios.get(
-          `${API_ENDPOINT}api/providers/${company}/search/${value}`,
-          config
-        );
-        if (response.data.length <= 0) {
-          setProviders([]); // Limpiar los resultados anteriores
-        } else {
-          setProviders(response.data);
-        }
-      } catch (error) {
-        console.error("Error searching customers:", error);
-      }
-    }
-  };
-  
   const createProvider = async (providerName) => {
     try {
       const config = {
@@ -139,12 +57,77 @@ const UploadExcel = ({fetchProducts}) => {
         {},
         config
       );
-      console.log("Proveedor creado:", response.data);
       setShowSearch(false);
       showNotification("Proveedor creado exitosamente.");
     } catch (error) {
       console.error("Error al crear el proveedor:", error);
       showNotification("Error al crear el proveedor. Inténtalo de nuevo.");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      showNotification("No se ha seleccionado ningún archivo");
+      return;
+    }
+    setBulkLoad(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("sale_price", gain);
+    formData.append("product_provider", searchValue);
+
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "x-access-token": token,
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setProgress(percentCompleted);
+      },
+    };
+
+    try {
+      const response = await axios.post(
+        `${API_ENDPOINT}api/products/bulk-update/${company}`,
+        formData,
+        config
+      );
+      setBulkLoad(false)
+      setProgress(0)
+      fetchProducts();
+      setShowModal(false);
+      showNotification(response.data.message);
+    } catch (error) {
+      showNotification("Error al cargar el archivo");
+      console.error("Error al cargar el archivo:", error);
+    }
+  };
+  const handleSearch = async (event) => {
+    const headers = {
+      "x-access-token": `${token}`,
+    };
+    const { value } = event.target;
+    setShowSearch(true);
+    setSearchValue(value);
+    if (value.trim() === "") {
+      setShowSearch(false);
+    } else {
+      try {
+        const response = await axios.get(
+          `${API_ENDPOINT}api/providers/${company}/search/${value}`,
+          { headers }
+        );
+        if (response.data.length <= 0) {
+          setProviders([]); // Limpiar los resultados anteriores
+        } else {
+          setProviders(response.data);
+        }
+      } catch (error) {
+        console.error("Error searching customers:", error);
+      }
     }
   };
 
@@ -155,7 +138,7 @@ const UploadExcel = ({fetchProducts}) => {
         onClick={() => setShowModal(!showModal)}
         className="p-1 hover:bg-slate-200 rounded-full m-1"
       >
-        <SiMicrosoftexcel />
+        <SiMicrosoftexcel/>
       </button>
       {showModal && (
         <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75 backdrop-blur-sm">
@@ -186,51 +169,63 @@ const UploadExcel = ({fetchProducts}) => {
                 </p>
               </div>
               <div className="py-1">
-                <input className="w-full py-2 px-5 rounded-full text-white" placeholder="Ganancia (%)" type="number" max={100} min={0} value={gain} onChange={(e)=> setGain(e.target.value)}/>
+                <input
+                  className="w-full py-2 px-5 rounded-full text-white"
+                  placeholder="Ganancia (%)"
+                  type="number"
+                  max={100}
+                  min={0}
+                  value={gain}
+                  onChange={(e) => setGain(e.target.value)}
+                />
               </div>
-              <div className="py-1">
-                <input value={searchValue} className="w-full py-2 px-5 rounded-full text-white" placeholder="Proveedor" type="text" onChange={handleSearch}/>
-                
-          {showSearch && (
-            <div className="absolute rounded-md overflow-hidden mt-1 shadow-md bg-white text-neutral w-3/12">
-              {providers.length > 0 ? ( // Renderizar resultados si hay proveedores
-                providers.map((provider, index) => (
-                  <div
-                    onClick={() => {
-                      console.log(provider);
-                      setSearchValue(provider.provider_name);
-                      setShowSearch(false)
-                    }}
-                    className="text-left py-1 px-5 hover:bg-slate-100 capitalize rounded-md"
-                    key={index}
-                  >
-                    {provider.provider_name}
+              <div>
+                <input
+                  type="text"
+                  className="w-full capitalize border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"
+                  placeholder="Proveedor"
+                  value={searchValue}
+                  onChange={handleSearch}
+                />
+                {showSearch && (
+                  <div className="absolute rounded-md overflow-hidden mt-1 shadow-md bg-white text-neutral w-3/12">
+                    {providers.length > 0 ? ( // Renderizar resultados si hay proveedores
+                      providers.map((provider, index) => (
+                        <div
+                          onClick={() => {
+                            setShowSearch(false)
+                            setSearchValue(provider.provider_name);
+                            setProviderId(provider._id);
+                          }}
+                          className="text-left py-1 px-5 hover:bg-slate-100 capitalize rounded-md"
+                          key={index}
+                        >
+                          {provider.provider_name}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-1 flex flex-col justify-center">
+                        <h3 className="p-2">
+                          ¿Desea crear el proveedor{" "}
+                          <span className="text-violet-500 font-semibold capitalize">
+                            {searchValue}
+                          </span>
+                          ?
+                        </h3>
+                        <button
+                          onClick={() => {
+                            createProvider(searchValue);
+                          }}
+                          type="button"
+                          className="w-full p-1 font-semibold text-violet-500 border-t border-t-violet-500"
+                        >
+                          Crear
+                        </button>
+                      </div>
+                    )}
                   </div>
-                ))
-              ) : (
-                <div className="p-1 flex flex-col justify-center">
-                  <h3 className="p-2">
-                    ¿Desea crear el proveedor{" "}
-                    <span className="text-violet-500 font-semibold capitalize">
-                      {searchValue}
-                    </span>
-                    ?
-                  </h3>
-                  <button
-                    onClick={() => {
-                      createProvider(searchValue);
-                    }}
-                    type="button"
-                    className="w-full p-1 font-semibold text-violet-500 border-t border-t-violet-500"
-                  >
-                    Crear
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
               </div>
-              
               <button
                 className="bg-violet-500 w-full rounded-md p-1 mt-5"
                 onClick={handleUpload}
@@ -242,16 +237,17 @@ const UploadExcel = ({fetchProducts}) => {
                 onClick={() => setShowModal(false)}
               >
                 Cancelar
-              </button>
-              {progress > 0 && progress < 100 && (
-                <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75 backdrop-blur-sm">Progreso: {progress}%</div>
+              </button>{bulkLoad && (
+                <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75 backdrop-blur-sm">
+                  Progreso: {progress}%
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
       {notification && (
-        <div className="bg-violet-500 text-white py-2 px-4 rounded-full absolute bottom-4 right-1/2 translate-x-1/2">
+        <div className="bg-violet-500 z-50 text-white py-2 px-4 rounded-full absolute bottom-4 right-1/2 translate-x-1/2">
           {notification}
         </div>
       )}

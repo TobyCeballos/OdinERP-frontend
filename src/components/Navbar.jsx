@@ -92,7 +92,7 @@ const Navbar = () => {
       try {
         setLoading(true);
         const response = await axios.get(`${API_ENDPOINT}api/users/${userId}`, config);
-        console.log(response.data);
+        
         setUserData(response.data);
         setLoading(false);
       } catch (error) {

@@ -43,7 +43,6 @@ const AddInventory = () => {
           { headers }
         );
         if (response.data.length <= 0) {
-          console.log("Producto no encontrado");
           setProducts([]); // Limpiar los resultados anteriores
         } else {
           setProducts(response.data);
@@ -109,7 +108,6 @@ const AddInventory = () => {
           { headers }
         );
         if (response.data.length <= 0) {
-          console.log("Producto no encontrado");
           setProducts([]); // Limpiar los resultados anteriores
         } else {
           setProducts(response.data);
@@ -166,14 +164,12 @@ const AddInventory = () => {
           stock: item.quantity, // Restar la cantidad del stock
           purchase_price: item.purchasePrice,
         };
-        console.log(item.purchasePrice);
         // Enviar la solicitud POST para actualizar el stock y el precio de compra
         const stockUpdateResponse = await axios.put(
           `${API_ENDPOINT}api/products/${company}/${item.objectId}/on-buy`,
           updateStockData,
           { headers: headers }
         );
-        console.log("Stock actualizado:", stockUpdateResponse.data);
       });
       
       const response = await axios.post(
@@ -207,7 +203,6 @@ const AddInventory = () => {
         await axios
           .get(`${API_ENDPOINT}api/users/${userId}`, { headers })
           .then((response) => {
-            console.log(response.data);
             setUserData(response.data);
             setCashRegister(response.data.user_id);
           })
@@ -256,7 +251,6 @@ const AddInventory = () => {
           return productData;
         })
       );
-      console.log(updatedProducts);
       setProductsCart(updatedProducts);
     } catch (error) {
       console.error("Error al actualizar los productos del carrito:", error);
@@ -325,7 +319,6 @@ const AddInventory = () => {
         {},
         config
       );
-      console.log("Proveedor creado:", response.data);
       setShowSearch(false);
       showNotification("Proveedor creado exitosamente.");
     } catch (error) {
@@ -364,7 +357,6 @@ const AddInventory = () => {
                 providers.map((provider, index) => (
                   <div
                     onClick={() => {
-                      console.log(provider);
                       setSearchValue(provider.provider_name);
                       setZipCode(provider.zip_code);
                       setVatCondition(provider.vat_condition);

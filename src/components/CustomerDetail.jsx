@@ -29,7 +29,6 @@ const CustomerDetail = () => {
         `${API_ENDPOINT}api/customers/${company}/${customerId}`,
         config
       );
-      console.log(response.data);
       setLoading(false);
       setCustomer(response.data);
 

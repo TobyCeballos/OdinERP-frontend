@@ -80,7 +80,6 @@ const AddEditCustomer = ({
       };
 
       if (customerToUpdate) {
-        console.log(customerId);
         await axios
           .put(`${API_ENDPOINT}api/customers/${company}/${customerId}`, data, {
             headers: headers,

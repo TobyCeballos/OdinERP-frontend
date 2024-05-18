@@ -15,7 +15,7 @@ const Home = () => {
   const getDollarData = async () => {
     try {
       await axios.get("https://api.bluelytics.com.ar/v2/latest").then((res) => {
-        console.log(res.data);
+        
         setDollarData(res.data);
         setLoading(false);
       });
@@ -35,7 +35,6 @@ const Home = () => {
       await axios
         .get(`${API_ENDPOINT}api/news`, config)
         .then((res) => {
-          console.log(res.data);
           setNews(res.data);
           setLoading(false);
         })
