@@ -114,7 +114,7 @@ const Customers = () => {
           <tbody>
             {customers.map((customer, index) => (
               <tr
-                onClick={() => handleRowClick(customer._id)}
+                onDoubleClick={() => handleRowClick(customer._id)}
                 key={customer._id}
                 className="odd:bg-neutral-100 capitalize bg-white text-left text-neutral-900"
               >

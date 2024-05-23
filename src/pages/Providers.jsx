@@ -122,7 +122,7 @@ const Providers = () => {
             <tbody>
               {providers.map((provider, index) => (
                 <tr
-                  onClick={() => handleRowClick(provider._id)}
+                  onDoubleClick={() => handleRowClick(provider._id)}
                   key={provider._id}
                   className="odd:bg-neutral-100 bg-white text-left text-neutral-900"
                 >

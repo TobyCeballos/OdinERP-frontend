@@ -76,7 +76,7 @@ const events = [
 
 export default function Calendar() {
   return (
-  <div className='w-full p-3 mt-2 bg-white rounded-md '>
+  <div className='p-3 mt-2 bg-white rounded-md '>
   <FullCalendar
   plugins={[ dayGridPlugin, interactionPlugin ]}
   initialView="dayGridMonth"

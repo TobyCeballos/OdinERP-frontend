@@ -196,7 +196,6 @@ const AddEditCustomer = ({
                   placeholder="Condición de IVA"
                   value={vatCondition}
                   onChange={(e) => setVatCondition(e.target.value)}
-                  required
                 >
                   <option value="final_consumer">Consumidor final</option>
                   <option value="exempt">Excento</option>
@@ -239,7 +238,6 @@ const AddEditCustomer = ({
                   className="w-full border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"
                   value={customerState}
                   onChange={(e) => setCustomerState(e.target.value)}
-                  required
                 >
                   <option value="active">Activo</option>
                   <option value="inactive">Inactivo</option>

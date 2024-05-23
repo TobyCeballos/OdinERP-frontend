@@ -72,12 +72,12 @@ const Home = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="bg-neutral-900 w-full h-screen flex flex-col px-5 pt-20">
+        <div className="relative bg-neutral-900 w-full h-screen flex flex-col px-5 pt-20">
           <div className="w-full flex  justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
             <h2>Inicio</h2>
           </div>
-          <div className="flex flex-row w-full">
-            <div className="w-1/2 p-3">
+          <div className="flex lg:flex-row flex-col-reverse w-full">
+            <div className="lg:w-1/2 w-full p-3">
               <div className="flex rounded-lg overflow-hidden">
                 <table className="w-full rounded-lg">
                   <thead className=" text-neutral-100">
@@ -113,11 +113,11 @@ const Home = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-3 text-xl h-[62vh] overflow-x-auto">
-                <h2 className="text-white pl-2 bg-neutral-900 fixed w-full">
+              <div className="mt-3 text-xl h-full">
+                <h2 className="text-white pl-2 bg-neutral-900 w-full">
                   Avisos de Actualizaciones
                 </h2>
-                <div className="mt-8">
+                <div className="max-h-full overflow-x-auto">
                   {news.map((item, index) => (
                     <NewsCard
                       key={index} // Asegúrate de proporcionar una key única para cada elemento de la lista
@@ -129,7 +129,7 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            <div className="relative w-1/2">
+            <div className="w-full lg:w-1/2">
               <div className="p-1">
                 <Calendar />
               </div>

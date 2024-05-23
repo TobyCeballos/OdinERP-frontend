@@ -2,14 +2,16 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_ENDPOINT } from "../utils/config";
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
-const socket = io('http://192.168.0.18:4000');
+const socket = io("http://192.168.0.18:4000");
 
 const UploadExcel = ({ fetchProducts }) => {
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [gain, setGain] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [vatValue, setVatValue] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [providers, setProviders] = useState([]);
@@ -17,20 +19,22 @@ const UploadExcel = ({ fetchProducts }) => {
   const [searchValue, setSearchValue] = useState("");
   const [providerId, setProviderId] = useState(null);
   const [bulkLoad, setBulkLoad] = useState(false);
-    const token = localStorage.getItem("token");
-    const company = localStorage.getItem("company");
-  
-    useEffect(() => {
-      socket.on('progress', (data) => {
-        showNotification("Aguarde unos segundos, una IA está corroborando los datos.")
-        console.log(data.progress);
-        setProgress(data.progress);
-      });
-  
-      return () => {
-        socket.off('progress');
-      };
-    }, []);
+  const token = localStorage.getItem("token");
+  const company = localStorage.getItem("company");
+
+  useEffect(() => {
+    socket.on("progress", (data) => {
+      showNotification(
+        "Aguarde unos segundos, una IA está corroborando los datos."
+      );
+      console.log(data.progress);
+      setProgress(data.progress);
+    });
+
+    return () => {
+      socket.off("progress");
+    };
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -43,7 +47,6 @@ const UploadExcel = ({ fetchProducts }) => {
       setNotification(null);
     }, 5000);
   };
-
 
   const createProvider = async (providerName) => {
     try {
@@ -75,6 +78,8 @@ const UploadExcel = ({ fetchProducts }) => {
     formData.append("file", file);
     formData.append("sale_price", gain);
     formData.append("product_provider", searchValue);
+    formData.append("vat_value", vatValue);
+    formData.append("discount", discount);
 
     const config = {
       headers: {
@@ -95,8 +100,8 @@ const UploadExcel = ({ fetchProducts }) => {
         formData,
         config
       );
-      setBulkLoad(false)
-      setProgress(0)
+      setBulkLoad(false);
+      setProgress(0);
       fetchProducts();
       setShowModal(false);
       showNotification(response.data.message);
@@ -135,10 +140,11 @@ const UploadExcel = ({ fetchProducts }) => {
     <>
       <button
         type="button"
+        
         onClick={() => setShowModal(!showModal)}
         className="p-1 hover:bg-slate-200 rounded-full m-1"
       >
-        <SiMicrosoftexcel/>
+        <SiMicrosoftexcel />
       </button>
       {showModal && (
         <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75 backdrop-blur-sm">
@@ -179,10 +185,34 @@ const UploadExcel = ({ fetchProducts }) => {
                   onChange={(e) => setGain(e.target.value)}
                 />
               </div>
+              <div className="py-1">
+                <input
+                  className="w-full py-2 px-5 rounded-full text-white"
+                  placeholder="Descuento (%)"
+                  type="number"
+                  max={100}
+                  min={0}
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                />
+              </div>
               <div>
+                <select
+                  className="w-full py-2 px-5 rounded-full text-white"
+                  name=""
+                  id=""
+                  value={vatValue}
+                  onChange={(e) => setVatValue(e.target.value)}
+                >
+                  <option value="0">IVA (0%)</option>
+                  <option value="21">IVA (21%)</option>
+                  <option value="10.5">IVA (10,5%)</option>
+                </select>
+              </div>
+              <div className="py-1">
                 <input
                   type="text"
-                  className="w-full capitalize border-b-2 outline-none border-b-neutral-500 focus-visible:border-b-violet-500 rounded-md py-2 px-3"
+                  className="w-full py-2 px-5 rounded-full text-white"
                   placeholder="Proveedor"
                   value={searchValue}
                   onChange={handleSearch}
@@ -193,7 +223,7 @@ const UploadExcel = ({ fetchProducts }) => {
                       providers.map((provider, index) => (
                         <div
                           onClick={() => {
-                            setShowSearch(false)
+                            setShowSearch(false);
                             setSearchValue(provider.provider_name);
                             setProviderId(provider._id);
                           }}
@@ -237,7 +267,8 @@ const UploadExcel = ({ fetchProducts }) => {
                 onClick={() => setShowModal(false)}
               >
                 Cancelar
-              </button>{bulkLoad && (
+              </button>
+              {bulkLoad && (
                 <div className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75 backdrop-blur-sm">
                   Progreso: {progress}%
                 </div>

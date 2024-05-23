@@ -140,7 +140,6 @@ const AddEditProvider = ({
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -150,7 +149,6 @@ const AddEditProvider = ({
                   placeholder="Teléfono"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -160,7 +158,6 @@ const AddEditProvider = ({
                   placeholder="Código postal"
                   value={zipCode}
                   onChange={(e) => setZipCode(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -170,7 +167,6 @@ const AddEditProvider = ({
                   placeholder="Direccion"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -180,7 +176,6 @@ const AddEditProvider = ({
                   placeholder="Cuit/Cuil"
                   value={cuitCuil}
                   onChange={(e) => setCuitCuil(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -190,7 +185,6 @@ const AddEditProvider = ({
                   placeholder="Condición de IVA"
                   value={vatCondition}
                   onChange={(e) => setVatCondition(e.target.value)}
-                  required
                 >
                   <option value="final_consumer">Consumidor final</option>
                   <option value="exempt">Excento</option>
@@ -207,7 +201,6 @@ const AddEditProvider = ({
                   placeholder="Límite de crédito"
                   value={creditLimit}
                   onChange={(e) => setCreditLimit(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">

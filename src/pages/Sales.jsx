@@ -147,13 +147,28 @@ const Sales = () => {
             <tbody>
               {sales.map((sale, index) => (
                 <tr
-                  onClick={() => handleRowClick(sale._id)}
+                  onDoubleClick={() => handleRowClick(sale._id)}
                   key={sale._id}
                   className="odd:bg-neutral-100 bg-white text-left text-neutral-900"
                 >
-                  <td className="py-2 px-4">{sale.sale_id}</td>
-                  <td className="py-2 px-4">{sale.customer}</td>
-                  <td className="py-2 px-4">{sale.shippingAddress}</td>
+                  <td
+                    onDoubleClick={() => handleRowClick(sale._id)}
+                    className="py-2 px-4"
+                  >
+                    {sale.sale_id}
+                  </td>
+                  <td
+                    onDoubleClick={() => handleRowClick(sale._id)}
+                    className="py-2 px-4"
+                  >
+                    {sale.customer}
+                  </td>
+                  <td
+                    onDoubleClick={() => handleRowClick(sale._id)}
+                    className="py-2 px-4"
+                  >
+                    {sale.shippingAddress}
+                  </td>
                   <td
                     className={`py-2 px-4 flex flex-row justify-center items-center text-center font-semibold ${
                       sale.payCondition === "current_account"
@@ -164,17 +179,23 @@ const Sales = () => {
                     }`}
                   >
                     {sale.payCondition === "current_account" ? (
-                      <span>Cuenta corriente</span>
+                      <span onDoubleClick={() => handleRowClick(sale._id)}>
+                        Cuenta corriente
+                      </span>
                     ) : sale.payCondition === "cash" ? (
-                      "Efectivo"
+                      <span onDoubleClick={() => handleRowClick(sale._id)}>
+                        Efectivo
+                      </span>
                     ) : (
-                      "Tarjeta"
+                      <span onDoubleClick={() => handleRowClick(sale._id)}>
+                        Tarjeta
+                      </span>
                     )}{" "}
                     {sale.payCondition === "current_account" && (
                       <button
                         className="p-1"
                         type="button"
-                        onClick={() => {
+                        onDoubleClick={() => {
                           handlePayOff(sale._id);
                         }}
                       >

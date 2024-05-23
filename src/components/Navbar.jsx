@@ -129,8 +129,8 @@ const Navbar = () => {
   return (
     <>
       {userData?.username ? (
-        <div className="fixed w-full z-50 p-2"  ref={searchRef}>
-          <div className="bg-white flex flex-row justify-between items-center  px-6 rounded-lg shadow-md shadow-black text-center">
+        <div className="fixed w-full z-50 p-1"  ref={searchRef}>
+          <div className="bg-white flex flex-row justify-between items-center  px-6 rounded-md shadow-md shadow-black text-center">
             <div className="flex">
               <span className="text-gray-600 text-2xl ">
                 {greeting},{" "}
@@ -145,7 +145,7 @@ const Navbar = () => {
                   onClick={toggleShowPos}
                   className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out"
                 >
-                  POS
+                  Opciones
                 </li>
                 <Link to={"/CRM"} className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out">
                   CRM

@@ -235,7 +235,6 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
                   name="text"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -268,7 +267,6 @@ const AddEditFormModal = ({ fetchProducts, icon, productToUpdate, productId }) =
                   name="text"
                   value={maxQty}
                   onChange={(e) => setMaxQty(e.target.value)}
-                  required
                 />
               </div>
               <div className="col-span-2">

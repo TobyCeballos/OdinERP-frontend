@@ -33,6 +33,7 @@ const tableHead = [
   "F. de carga",
   "F. Modif",
 ];
+
 function TableHead({ selectable, hiddenColumns }) {
   return (
     <thead className="bg-violet-700 text-white">
@@ -55,6 +56,7 @@ function TableHead({ selectable, hiddenColumns }) {
     </thead>
   );
 }
+
 function TableBody({
   selectable,
   products,
@@ -203,7 +205,7 @@ function TableBody({
                 (key, colIndex) =>
                   !hiddenColumns.includes(colIndex) && (
                     <td
-                      onClick={() => handleRowClick(product._id)}
+                      onDoubleClick={() => handleRowClick(product._id)}
                       className="whitespace-nowrap p-1"
                       key={colIndex}
                     >
@@ -229,6 +231,7 @@ function TableBody({
     </>
   );
 }
+
 function reorderProductData(productData) {
   const orderedProductData = {};
 
@@ -302,8 +305,8 @@ const ProductTable = ({
       updateProductsCart();
     } else {
       // Si el producto no está en el carrito, agregarlo con la cantidad especificada
-      setCart((prevCart) => [
-        ...prevCart,
+      setCart([
+        ...cart,
         { objectId: productId, quantity: parseInt(quantityToAdd) },
       ]);
     }
@@ -314,6 +317,7 @@ const ProductTable = ({
     // Redirigir al usuario a la página de detalles del producto
     navigate(`/POS/stock/details/${productId}`);
   };
+
   const nextPage = () => {
     setCurrentPage(parseInt(currentPage) + 1);
   };
@@ -361,6 +365,7 @@ const ProductTable = ({
       setHiddenColumns([...hiddenColumns, index]);
     }
   };
+
   const handleSearch = async (event) => {
     const { value } = event.target;
     setSearchValue(value);
@@ -388,6 +393,7 @@ const ProductTable = ({
       }
     }
   };
+
   const hideAllColumns = () => {
     setHiddenColumns([...Array(tableHead.length).keys()]);
   };
@@ -398,14 +404,15 @@ const ProductTable = ({
 
   const someColumnsVisible =
     hiddenColumns.length >= 1 && hiddenColumns.length === tableHead.length;
+
   return (
-    <div className={height + "flex"}>
-      {headerOptions == true && (
-        <div className="w-full -z-20 flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
+    <div className="flex flex-col h-[calc(100vh-74px)] mt-[70px]">
+      {headerOptions && (
+        <div className="w-full flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
           <h2>{name}</h2>
           <div className="flex">
-            {search === true && (
-              <div className="flex z-0 items-center relative mr-3 w-80">
+            {search && (
+              <div className="flex items-center relative mr-3 w-80">
                 <input
                   type="text"
                   placeholder="Buscar..."
@@ -416,7 +423,7 @@ const ProductTable = ({
                 <FaSearch className="absolute right-3 text-base" />
               </div>
             )}
-            {filter === true && (
+            {filter && (
               <button>
                 <FilterStockCollapse
                   toggleColumnVisibility={toggleColumnVisibility}
@@ -430,38 +437,39 @@ const ProductTable = ({
           </div>
         </div>
       )}
-      <div
-        className={`w-full flex flex-col mt-3 rounded-xl overflow-y-hidden overflow-x-auto bg-neutral-800`}
-      >
-        <>
-          <table className="bg-white max-w-full text-left">
-            <TableHead selectable={selectable} hiddenColumns={hiddenColumns} />
-            {loading ? (
-              <div className="h-[69vh] w-full overflow-hidden">
-              <Loader modified={true}/></div>
-            ) : (
-              <TableBody
-                addToCart={addToCart}
-                selectable={selectable}
-                products={products}
-                hiddenColumns={hiddenColumns}
-                handleRowClick={handleRowClick}
-                showNotification={showNotification}
-              />
-            )}
-          </table>
-          {someColumnsVisible && (
-            <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
-              Por favor, selecciona una columna para mostrar. ;)
-            </div>
+      <div className="flex-1 overflow-y-auto bg-neutral-800 mt-3 rounded-xl">
+        <table className="bg-white w-full h-full">
+          <TableHead selectable={selectable} hiddenColumns={hiddenColumns} />
+          {loading ? (
+            <tbody>
+              <tr>
+                <td colSpan={tableHead.length} className="h-full w-full flex justify-center items-center">
+                  <Loader modified={true} />
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <TableBody
+              addToCart={addToCart}
+              selectable={selectable}
+              products={products}
+              hiddenColumns={hiddenColumns}
+              handleRowClick={handleRowClick}
+              showNotification={showNotification}
+            />
           )}
-        </>
+        </table>
+        {someColumnsVisible && (
+          <div className="bg-white text-violet-700 text-center text-xl p-4 font-semibold rounded-xl">
+            Por favor, selecciona una columna para mostrar. ;)
+          </div>
+        )}
       </div>
-      {footerOptions === true && (
+      {footerOptions && (
         <div className="bg-white flex justify-between w-full p-2 rounded-xl mt-2">
-          {sortOtions === true && (
+          {sortOtions && (
             <select
-              className="rounded-full  px-2 py-1 bg-white border-slate-200 border overflow-hidden outline-none"
+              className="rounded-full px-2 py-1 bg-white border-slate-200 border overflow-hidden outline-none"
               name=""
               id=""
             >
@@ -471,7 +479,7 @@ const ProductTable = ({
               <option value="id">F. Modif</option>
             </select>
           )}
-          {pagination === true && (
+          {pagination && (
             <div className="flex justify-center items-center">
               <button
                 type="button"
@@ -495,7 +503,7 @@ const ProductTable = ({
               </button>
             </div>
           )}
-          {addOptions === true && (
+          {addOptions && (
             <div className="flex justify-center items-center">
               <AddEditFormModal
                 fetchProducts={fetchProducts}

@@ -53,9 +53,13 @@ const Sell = () => {
       cart,
     };
     try {
-      if (searchValue.trim() === "") {
-        showNotification("Debe seleccionar un cliente.");
-        return;
+      if (vatCondition == "current_account") {
+        if (searchValue.trim() === "") {
+          showNotification(
+            "Para cuenta corriente, debe seleccionar un cliente."
+          );
+          return;
+        }
       }
       if (cart.length === 0) {
         showNotification("Debe seleccionar al menos un producto.");
