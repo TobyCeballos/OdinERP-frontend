@@ -1,3 +1,3 @@
 
-export const API_ENDPOINT = 'http://192.168.0.18:4000/';
+export const API_ENDPOINT = 'https://odinerp-backend-production.up.railway.app/';
 
