@@ -254,7 +254,7 @@ function reorderProductData(productData) {
     "max_stock",
     "product_state",
     "createdAt",
-    "updatedAt"
+    "updatedAt",
   ];
   desiredColumnOrder.forEach((key) => {
     orderedProductData[key] = productData[key];
@@ -262,7 +262,6 @@ function reorderProductData(productData) {
 
   return orderedProductData;
 }
-
 const ProductTable = ({
   name,
   filter,
@@ -283,12 +282,21 @@ const ProductTable = ({
     0, 3, 4, 6, 8, 9, 13, 14,
   ]);
   const [products, setProducts] = useState([]);
-  const [count, setCount] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const company = localStorage.getItem("company");
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const config = {
+    headers: {
+      "x-access-token": `${token}`,
+    },
+  };
+
   const addToCart = (productId, quantityToAdd = 1) => {
     // Verificar si el producto ya está en el carrito
     const existingProductIndex = cart.findIndex(
@@ -312,85 +320,73 @@ const ProductTable = ({
     }
   };
 
-  const navigate = useNavigate();
   const handleRowClick = (productId) => {
-    // Redirigir al usuario a la página de detalles del producto
     navigate(`/POS/stock/details/${productId}`);
   };
 
-  const nextPage = () => {
-    setCurrentPage(parseInt(currentPage) + 1);
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const token = localStorage.getItem("token");
-
-  const config = {
-    headers: {
-      "x-access-token": `${token}`,
-    },
-  };
-
   const fetchProducts = async () => {
-    setLoading(true); // Activar la carga al comenzar la solicitud de la API
+    setLoading(true);
     try {
-      const response = await axios.get(
-        `${API_ENDPOINT}api/products/${company}?page=${currentPage}`,
-        config
-      );
+      if (searchValue.trim() === "") {
+        const response = await axios.get(
+          `${API_ENDPOINT}api/products/${company}?page=${currentPage}`,
+          config
+        );
 
-      // Reorganizar los datos antes de pasarlos al componente TableBody
-      const reorderedProducts = response.data.map(reorderProductData);
-      setProducts(reorderedProducts);
-      setLoading(false); // Desactivar la carga después de recibir los datos
+        const reorderedProducts =
+          response.data.products.map(reorderProductData);
+        setProducts(reorderedProducts);
+        setTotalPages(response.data.totalPages);
+        setLoading(false);
+      } else {
+        const response = await axios.get(
+          `${API_ENDPOINT}api/products/${company}/search/${searchValue}?page=${currentPage}`,
+          config
+        );
+
+        const reorderedProducts =
+          response.data.results.map(reorderProductData);
+        setProducts(reorderedProducts);
+        setTotalPages(response.data.totalPages);
+        setLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
-      setLoading(false); // Desactivar la carga en caso de error
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchProducts();
   }, [currentPage]);
+  const handleSearch = async (event) => {
+    const { value } = event.target;
+    setCurrentPage(1); // Reset currentPage when performing a new search
+    setSearchValue(value);
+    if (value.trim() === "") {
+      fetchProducts();
+    } else {
+      // Use the updated value here
+      try {
+        const response = await axios.get(
+          `${API_ENDPOINT}api/products/${company}/search/${value}?page=${currentPage}`,
+          config
+        );
+        console.log(response.data);
+        const reorderedProducts = response.data.results.map(reorderProductData);
+        setProducts(reorderedProducts);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error("Error searching products:", error);
+      }
+    }
+  };
 
   const toggleColumnVisibility = (index) => {
     if (hiddenColumns.includes(index)) {
       setHiddenColumns(hiddenColumns.filter((col) => col !== index));
     } else {
       setHiddenColumns([...hiddenColumns, index]);
-    }
-  };
-
-  const handleSearch = async (event) => {
-    const { value } = event.target;
-    setSearchValue(value);
-    if (value.trim() === "") {
-      // Si el input está vacío, obtener todos los productos
-      try {
-        const response = await axios.get(
-          `${API_ENDPOINT}api/products/${company}`,
-          config
-        );
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    } else {
-      // Si hay un término de búsqueda, realizar la búsqueda
-      try {
-        const response = await axios.get(
-          `${API_ENDPOINT}api/products/${company}/search/${value}`,
-          config
-        );
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Error searching products:", error);
-      }
     }
   };
 
@@ -404,6 +400,18 @@ const ProductTable = ({
 
   const someColumnsVisible =
     hiddenColumns.length >= 1 && hiddenColumns.length === tableHead.length;
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(parseInt(currentPage) + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(parseInt(currentPage) - 1);
+    }
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-74px)] mt-[70px]">
@@ -443,7 +451,10 @@ const ProductTable = ({
           {loading ? (
             <tbody>
               <tr>
-                <td colSpan={tableHead.length} className="h-full w-full flex justify-center items-center">
+                <td
+                  colSpan={tableHead.length}
+                  className="h-full w-full flex justify-center items-center"
+                >
                   <Loader modified={true} />
                 </td>
               </tr>
@@ -490,10 +501,11 @@ const ProductTable = ({
               </button>
               <input
                 type="number"
-                className="w-28 text-center bg-white border rounded-full"
+                className="w-16 text-center bg-white rounded-full"
                 value={currentPage}
                 onChange={(e) => setCurrentPage(e.target.value)}
               />
+              <span>de {totalPages} páginas</span>
               <button
                 type="button"
                 onClick={nextPage}

@@ -11,18 +11,18 @@ const Home = () => {
   const [news, setNews] = useState([]);
   const [dollarData, setDollarData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
+
   const getDollarData = async () => {
     try {
-      await axios.get("https://api.bluelytics.com.ar/v2/latest").then((res) => {
-        
-        setDollarData(res.data);
-        setLoading(false);
-      });
+      const res = await axios.get("https://api.bluelytics.com.ar/v2/latest");
+      setDollarData(res.data);
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
   };
+
   const token = localStorage.getItem("token");
 
   const config = {
@@ -30,6 +30,7 @@ const Home = () => {
       "x-access-token": `${token}`,
     },
   };
+
   const getNews = async () => {
     try {
       await axios
@@ -47,7 +48,7 @@ const Home = () => {
               window.location.href = "/signin";
             } else if (error.response.status === 404) {
               // Navigate to 404 page
-              Navigate("/404");
+              navigate("/404");
             }
           } else {
             console.error("Network error:", error.message);
@@ -63,6 +64,7 @@ const Home = () => {
     getNews();
     getDollarData();
   }, []);
+
   const formatNumber = (number) => {
     return parseFloat(number).toFixed(2); // Ajusta el número a dos decimales
   };
@@ -72,22 +74,22 @@ const Home = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="relative bg-neutral-900 w-full h-screen flex flex-col px-5 pt-20">
-          <div className="w-full flex  justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
+        <div className="relative bg-neutral-900 w-full h-screen flex flex-col px-5 pt-20 overflow-hidden">
+          <div className="w-full flex justify-between text-2xl border-b border-b-violet-500 pl-5 pb-2">
             <h2>Inicio</h2>
           </div>
-          <div className="flex lg:flex-row flex-col-reverse w-full">
-            <div className="lg:w-1/2 w-full p-3">
-              <div className="flex rounded-lg overflow-hidden">
+          <div className="flex flex-col lg:flex-row w-full h-full overflow-hidden">
+            <div className="lg:w-1/2 w-full p-3 flex flex-col h-full overflow-hidden">
+              <div className="flex- rounded-lg overflow-hidden">
                 <table className="w-full rounded-lg">
-                  <thead className=" text-neutral-100">
+                  <thead className="text-neutral-100">
                     <tr>
-                      <th className="px-4 py-2  bg-slate-700">Tipo de Dólar</th>
-                      <th className="px-4 py-2  bg-slate-700">Compra</th>
-                      <th className="px-4 py-2  bg-slate-700">Venta</th>
+                      <th className="px-4 py-2 bg-slate-700">Tipo de Dólar</th>
+                      <th className="px-4 py-2 bg-slate-700">Compra</th>
+                      <th className="px-4 py-2 bg-slate-700">Venta</th>
                     </tr>
                   </thead>
-                  <tbody className=" text-neutral-600">
+                  <tbody className="text-neutral-600">
                     <tr>
                       <td className="px-4 py-2 border bg-white border-gray-400">
                         Dólar Oficial
@@ -113,14 +115,14 @@ const Home = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-3 text-xl h-full">
-                <h2 className="text-white pl-2 bg-neutral-900 w-full">
+              <div className="mt-3 text-xl flex-1 overflow-auto">
+                <h2 className="text-white pl-2 bg-neutral-900">
                   Avisos de Actualizaciones
                 </h2>
-                <div className="max-h-full overflow-x-auto">
+                <div className="overflow-auto">
                   {news.map((item, index) => (
                     <NewsCard
-                      key={index} // Asegúrate de proporcionar una key única para cada elemento de la lista
+                      key={index}
                       title={item.title}
                       content={item.content}
                       date={item.date}
@@ -129,11 +131,11 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full lg:w-1/2">
-              <div className="p-1">
-                <Calendar />
+            <div className="w-full flex-1 py-3 lg:w-1/2">
+              <Calendar />
+              <div className="flex-1 p-1 overflow-auto">
+                <Clock />
               </div>
-              <Clock />
             </div>
           </div>
         </div>

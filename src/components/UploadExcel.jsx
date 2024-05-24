@@ -4,7 +4,7 @@ import axios from "axios";
 import { API_ENDPOINT } from "../utils/config";
 import io from "socket.io-client";
 
-const socket = io("http://192.168.0.18:4000");
+const socket = io(API_ENDPOINT);
 
 const UploadExcel = ({ fetchProducts }) => {
   const [file, setFile] = useState(null);

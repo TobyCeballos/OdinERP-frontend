@@ -131,14 +131,14 @@ const Navbar = () => {
       {userData?.username ? (
         <div className="fixed w-full z-50 p-1"  ref={searchRef}>
           <div className="bg-white flex flex-row justify-between items-center  px-6 rounded-md shadow-md shadow-black text-center">
-            <div className="flex">
+            <div className="flex w-1/3">
               <span className="text-gray-600 text-2xl ">
                 {greeting},{" "}
                 <span className="text-violet-400">{userData?.username}</span>!
               </span>
             </div>
-            <span className="text-violet-700 text-xl">
-              <ul className="flex">
+            <span className="text-violet-700 text-xl w-1/3">
+              <ul className="flex justify-center items-center">
                   <Link className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out" to={"/"}>Inicio</Link>
 
                 <li
@@ -148,11 +148,11 @@ const Navbar = () => {
                   Opciones
                 </li>
                 <Link to={"/CRM"} className="hover:bg-violet-700 hover:text-white px-10 py-4 font-bold transition-all duration-300 ease-in-out">
-                  CRM
+                  Chat
                 </Link>
               </ul>
             </span>
-            <div className="flex">
+            <div className="flex justify-end w-1/3">
               <Link to={`/profile/${userData._id}`} className="flex flex-col text-violet-600 justify-center ml-3 item-center">
                 <FaUserCircle className="text-3xl" />
               </Link>

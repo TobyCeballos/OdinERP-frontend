@@ -6,7 +6,7 @@ import { IoMdSend } from "react-icons/io";
 import { API_ENDPOINT } from "../utils/config";
 import { v4 as uuidv4 } from "uuid"; // Para generar identificadores únicos
 
-const socket = io("http://192.168.0.18:4000"); // Cambia la URL si es necesario
+const socket = io(API_ENDPOINT); // Cambia la URL si es necesario
 
 const Chat = () => {
   const [message, setMessage] = useState("");

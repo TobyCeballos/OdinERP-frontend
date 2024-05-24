@@ -1,90 +1,90 @@
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
-import  interactionPlugin from '@fullcalendar/interaction'
-const events = [
-  {
-    title: "Conferencia de Innovación Tecnológica",
-    start: "2024-04-01T09:00:00",
-    end: "2024-04-01T18:00:00",
-    location: "Centro de Convenciones XYZ",
-    classNames: ["conferencia"]
-  },
-  {
-    title: "Taller de Desarrollo de Aplicaciones Móviles",
-    start: "2024-04-05T10:30:00",
-    end: "2024-04-05T16:30:00",
-    location: "Sala de Conferencias ABC",
-    classNames: ["taller"]
-  },
-  {
-    title: "Feria de Emprendimiento Local",
-    start: "2024-04-10T11:00:00",
-    end: "2024-04-10T19:00:00",
-    location: "Plaza del Pueblo",
-    classNames: ["feria"]
-  },
-  {
-    title: "Seminario de Marketing Digital",
-    start: "2024-04-12T10:00:00",
-    end: "2024-04-12T16:00:00",
-    location: "Salón de Eventos Zeta",
-    classNames: ["seminario"]
-  },
-  {
-    title: "Expo de Tecnología e Innovación",
-    start: "2024-04-15T08:30:00",
-    end: "2024-04-15T17:30:00",
-    location: "Pabellón de Exposiciones Gamma",
-    classNames: ["expo"]
-  },
-  {
-    title: "Taller de Diseño Gráfico Avanzado",
-    start: "2024-04-18T11:00:00",
-    end: "2024-04-18T16:00:00",
-    location: "Aula Creativa Epsilon",
-    classNames: ["taller"]
-  },
-  {
-    title: "Foro de Emprendedores",
-    start: "2024-04-22T09:30:00",
-    end: "2024-04-22T18:30:00",
-    location: "Centro de Emprendimiento Beta",
-    classNames: ["foro"]
-  },
-  {
-    title: "Charla sobre Inteligencia Artificial",
-    start: "2024-04-25T14:00:00",
-    end: "2024-04-25T19:00:00",
-    location: "Sala de Conferencias Delta",
-    classNames: ["charla"]
-  },
-  {
-    title: "Curso de Desarrollo Web Frontend",
-    start: "2024-04-28T10:00:00",
-    end: "2024-04-28T17:00:00",
-    location: "Aula de Desarrollo Web",
-    classNames: ["curso"]
-  },
-  {
-    title: "Expo de Arte Contemporáneo",
-    start: "2024-04-30T12:00:00",
-    end: "2024-04-30T20:00:00",
-    location: "Galería de Arte Omega",
-    classNames: ["expo"]
-  }
-];
+import React, { useState, useEffect } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import axios from 'axios';
+import EventModal from './EventModal'; // Asegúrate de que la ruta sea correcta
+import moment from 'moment-timezone';
+import { API_ENDPOINT } from '../utils/config';
 
-export default function Calendar() {
+const Calendar = () => {
+  const [events, setEvents] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allDay, setAllDay] = useState(false);
+  const [selectInfo, setSelectInfo] = useState(null);
+  const token = localStorage.getItem("token")
+  const config = {
+    headers: {
+      "x-access-token": `${token}`,
+    },
+  };
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(`${API_ENDPOINT}api/calendar/${localStorage.getItem('company')}/events`, config);
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error al cargar eventos:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const handleDateSelect = (selectInfo) => {
+    
+    console.log(selectInfo);
+    setAllDay(selectInfo.allDay);
+    setSelectInfo(selectInfo);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (newEvent) => {
+    try {
+      const response = await axios.post(`${API_ENDPOINT}api/calendar/${localStorage.getItem('company')}/event`,newEvent, config );
+      const savedEvent = response.data;
+
+      setEvents([...events, savedEvent]);
+    } catch (error) {
+      console.error('Error al guardar el evento:', error);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectInfo(null);
+  };
+
+  // Función para formatear la fecha en el formato requerido y ajustar a la hora 00:00 en la zona horaria de Argentina
+  const formatDate = (date) => {
+    if (!date) return '';
+    return moment(date).tz('America/Argentina/Buenos_Aires').format('YYYY-MM-DDTHH:mm');
+  };
+
   return (
-  <div className='p-3 mt-2 bg-white rounded-md '>
-  <FullCalendar
-  plugins={[ dayGridPlugin, interactionPlugin ]}
-  initialView="dayGridMonth"
-  height={700}
-  weekends={true}
-  firstDay={1} selectable
-  eventBackgroundColor='#8b5cf6'
-  events={events}
-/></div>
-  )
-}
+    <div className="h-full bg-white p-2 rounded-md">
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        height="100%"
+        weekends={true}
+        firstDay={1}
+        selectable={true}
+        eventBackgroundColor="#8b5cf6"
+        events={events}
+        select={handleDateSelect}
+      />
+      <EventModal
+        allDay={allDay}
+        setAllDay={setAllDay}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSave={handleSave}
+        startDate={formatDate(selectInfo ? selectInfo.start : '')}
+        endDate={formatDate(selectInfo ? selectInfo.end : '')}
+      />
+    </div>
+  );
+};
+
+export default Calendar;
